@@ -11,6 +11,7 @@
 #include <map>
 #include <string>
 #include <time.h>
+#include <vector>
 
 #include "ShaderLoader.h"
 #include "Audio.h"
@@ -26,30 +27,46 @@
 #include "TextLabel.h"
 #include "Sprite.h"
 #include "ConsoleController.h"
+#include "3D.h"
 
 using namespace std;
 
 //Classes
 
-Camera m_Cam;
-ScreenInfo m_Screen;
-AudioSystem m_Audio;
-TextLabel m_Score;
-TextLabel m_GameOverText;
-TextLabel m_MainText;
+Camera mCam;
+ScreenInfo mScreen;
+AudioSystem mAudio;
+TextLabel mScore;
+TextLabel gameOverText;
+TextLabel mainText;
 GameManager m_Game;
-ObjectManager m_BabyObjManager;
-ObjectManager m_FireObjManager;
+ObjectManager babyObjManager;
+ObjectManager fireObjManager;
+LoadTexture textureLoader;
 
+//Sprite
 Sprite babySprite;
 Sprite fireSprite;
 Sprite backdropSprite;
 
+//Basic 3D
+Simple3DObject pyramidObject;
+
+//Models
+
+Model tankModel;
+
+//Vectors
+vector<Simple3DObject*> simple3DObjects;
+vector<Sprite*> menuSprites;
+vector<Sprite*> gameSprites;
+vector<Model*> mainModels;
+
 //Global Vars
 
 float r = 1.0;
-float b = 1.0;
-float g = 1.0;
+float b = 0.0;
+float g = 0.0;
 
 GLuint fireTexture = NULL;
 GLuint babyTexture = NULL;
@@ -88,14 +105,6 @@ bool BackTrackPlaying = false;
 bool Babyisdying = false;
 
 glm::mat4 fireRot = glm::rotate(glm::mat4(), glm::radians(rotationAngle), rotZ);
-
-/* CAMERA */
-const unsigned int SCR_WIDTH = 1280;
-const unsigned int SCR_HEIGHT = 720;
-glm::vec3 camPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 camLookDir = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 camUpDir = glm::vec3(0.0f, 1.0f, 0.0f);
-
 
 GLuint backIndices[] = {
 	0, 1, 2,
@@ -161,101 +170,153 @@ GLfloat quadVerts[] = {
 	0.5f, -0.5f, 0.0f,	0.0f, 1.0f, 0.0f,	1.0f, 1.0f,		//bottom right	3
 };
 
+GLfloat pyVerts[] = {
+	//Positions            //Normals          //Tex Cords
+	-1.0f, 0.0f, -1.0f,	 0.0f, 0.0f, 1.0f,	 0.0f, 0.0f, //0 bl
+	-1.0f, 0.0f, 1.0f,	 0.0f, 0.0f, 1.0f,	 0.0f, 1.0f, //1 br
+	1.0f, 0.0f, 1.0f,	 0.0f, 0.0f, 1.0f,	 1.0f, 1.0f, //2 tr
+	1.0f, 0.0f, -1.0f,	 0.0f, 0.0f, 1.0f,	 1.0f, 0.0f, //3 tl
+	0.0f, 1.0f, 0.0f,	 0.0f, 0.0f, 1.0f,	 0.5f, 0.5f, //4 top
+};
+
+GLuint pyIndices[] = {
+
+	0, 2, 3,
+	1, 3, 0,
+
+	0, 1, 4,
+	1, 2, 4,
+	2, 3, 4,
+	3, 0, 4,
+	
+};
+
 void checkCollision(glm::vec4 box1, glm::vec4 box2)
 {
 	if ((box1.x > box2.x) && (box1.y < box2.x))
 	{
 		if ((box1.z < box2.z) && (box1.w > box2.z))
 		{
-			m_FireObjManager.ONTARGET = true;
+			fireObjManager.ONTARGET = true;
 		}
 		if ((box1.z < box2.w) && (box1.w > box2.w))
 		{
-			m_FireObjManager.ONTARGET = true;
+			fireObjManager.ONTARGET = true;
 		}
 	}
 	if ((box1.x > box2.y) && (box1.y < box2.y))
 	{
 		if ((box1.z < box2.z) && (box1.w > box2.z))
 		{
-			m_FireObjManager.ONTARGET = true;
+			fireObjManager.ONTARGET = true;
 		}
 		if ((box1.z < box2.w) && (box1.w > box2.w))
 		{
-			m_FireObjManager.ONTARGET = true;
+			fireObjManager.ONTARGET = true;
 		}
 	}
 }
 
 void Render() {
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-	r = (rand() % 10 + 1) / 10.0f;
-	g = (rand() % 10 + 1) / 10.0f;
-	b = (rand() % 10 + 1) / 10.0f;
+	//r = (rand() % 10 + 1) / 10.0f;
+	//g = (rand() % 10 + 1) / 10.0f;
+	//b = (rand() % 10 + 1) / 10.0f;
 
 	glClearColor(r, g, b, 1.0);
 
 	/* CAMERA */
 
-	m_Cam.calculate(m_Screen);
+	mCam.Tick(mScreen, deltaTime);
 
 	/* Sprite Tick */
 
 	glm::vec3 rotationAxisZ = glm::vec3(1.0f, 0.0f, 0.0f);
 
-	fireSprite.Tick(rotationAngle, rotationAxisZ, m_Cam);
-	babySprite.Tick(rotationAngle, rotationAxisZ, m_Cam);
-	backdropSprite.Tick(rotationAngle, rotationAxisZ, m_Cam);
+	fireSprite.Tick(rotationAngle, rotationAxisZ, mCam);
+	babySprite.Tick(rotationAngle, rotationAxisZ, mCam);
+	backdropSprite.Tick(rotationAngle, rotationAxisZ, mCam);
 
 	//MOVE OBJECTS
-
+	
 	if (!m_Game.gameover && m_Game.currentScreen == m_Game.GAME) {
 
-		m_BabyObjManager.movement(m_Audio, deltaTime, m_Screen.SCR_WIDTH, m_Screen.SCR_HEIGHT, false);
-		babySprite.position += m_BabyObjManager.objPos;
+		babyObjManager.movement(mAudio, deltaTime, mScreen.SCR_WIDTH, mScreen.SCR_HEIGHT, false);
+		babySprite.position += babyObjManager.objPos;
 
-		m_FireObjManager.Target = babySprite.position;
-		m_FireObjManager.movement(m_Audio, deltaTime, m_Screen.SCR_WIDTH, m_Screen.SCR_HEIGHT, true);
-		fireSprite.position += m_FireObjManager.objPos;
+		fireObjManager.Target = babySprite.position;
+		fireObjManager.movement(mAudio, deltaTime, mScreen.SCR_WIDTH, mScreen.SCR_HEIGHT, true);
+		fireSprite.position += fireObjManager.objPos;
 	}
-
+	
 	float rotationAngle = 0;
 
 	//CHECK COLLISIONS
 
 	if (!m_Game.gameover && m_Game.currentScreen == m_Game.GAME) {
-		glm::vec4 playerbox(m_BabyObjManager.objPos.y, babySprite.position.y - babySprite.scale.y, babySprite.position.x, babySprite.position.x + babySprite.scale.x); //up down left right
+		glm::vec4 playerbox(babyObjManager.objPos.y, babySprite.position.y - babySprite.scale.y, babySprite.position.x, babySprite.position.x + babySprite.scale.x); //up down left right
 		glm::vec4 enemybox((fireSprite.position.y - 30), (fireSprite.position.y - 30) - (fireSprite.position.y - 30), (fireSprite.position.x - 30), (fireSprite.position.x - 30) + fireSprite.scale.x);
 		checkCollision(playerbox, enemybox);
 	}
 
-	/* BACKROUND */
+	for (size_t i = 0; i < simple3DObjects.size(); i++)
+	{
+		//simple3DObjects.at(i)->Render(mCam);
+	}
 
-	backdropSprite.Render();
+	for (size_t i = 0; i < mainModels.size(); i++)
+	{
+		mainModels.at(i)->Render();
+	}
+
+	// MAIN MENU
 
 	if (!m_Game.gameover && m_Game.currentScreen == m_Game.MAIN) {
-		m_MainText.Render();
+		
+		// Render Sprites
+
+		for (size_t i = 0; i < menuSprites.size(); i++)
+		{
+			//menuSprites.at(i)->Render();
+		}
+
+		// Render Text
+
+		mainText.Render();
 	}
+
+	// GAME
 
 	else if (!m_Game.gameover && m_Game.currentScreen == m_Game.GAME) {
 
-		/* BABY */
+		// Render Sprites
 
-		babySprite.Render();
+		for (size_t j = 0; j < gameSprites.size(); j++)
+		{
+			gameSprites.at(j)->Render();
+		}
 
-		/* FIRE */
+		// Render Text
 
-		fireSprite.Render();
-
-		/* TEXT */
-
-		m_Score.Render();
+		mScore.Render();
 
 	}
 
+	// GAMEOVER
+
 	else {
-		m_GameOverText.Render();
+
+		// Render Sprites
+
+		for (size_t i = 0; i < menuSprites.size(); i++)
+		{
+			menuSprites.at(i)->Render();
+		}
+		
+		//Render Text
+
+		gameOverText.Render();
 	}
 
 	glutSwapBuffers();
@@ -263,10 +324,10 @@ void Render() {
 
 void Update() {
 	currentTime = static_cast<float>(glutGet(GLUT_ELAPSED_TIME));
-	deltaTime = (currentTime - pasttime) * 0.1f;
+	deltaTime = ((currentTime - pasttime) * 0.1f) * 0.01f;;
 	pasttime = currentTime;
 	glutPostRedisplay();
-	m_Audio.Tick();
+	mAudio.Tick();
 	m_Game.CheckGeneralInput(m_Game);
 }
 
@@ -276,7 +337,9 @@ int main(int argc, char** argv) {
 		Console_Banner();
 		srand((unsigned int)time(NULL));
 
-		Console_OutputLog("Initializing Game...", LOGINFO);
+		Console_OutputLog("Initialising Game...", LOGINFO);
+
+
 
 		m_Game.score = 0;
 		m_Game.gameover = false;
@@ -284,118 +347,83 @@ int main(int argc, char** argv) {
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 		glutInitWindowPosition(100, 50);
-		glutInitWindowSize((int)m_Screen.SCR_WIDTH, (int)m_Screen.SCR_HEIGHT);
+		glutInitWindowSize((int)mScreen.SCR_WIDTH, (int)mScreen.SCR_HEIGHT);
 
 		glutCreateWindow("The Dev Forgot To Name Me");
 
 		if (glewInit() != GLEW_OK) {
 			Console_OutputLog("Glew INIT FAILED! The program cannot recover from this error", LOGFATAL);
 			system("pause");
+			exit(0);
 		}
 
-		if (!m_Audio.AudioInit()) {
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
+
+		if (!mAudio.AudioInit()) {
 			Console_OutputLog("Audio Inialistation Failed!", LOGWARN);
-			system("pause");
 		}
 
 		glClearColor(1.0, 0.0, 0.0, 1.0);
 
+		/*
+			==============
+			[ 3D OBJECTS ]
+			==============
+		*/
 
+		tankModel = Model::Model("Resources/Models/Tank/Tank.obj", &mCam, "Tank", rotationAngle, rotZ, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		mainModels.push_back(&tankModel);
 
-		glGenTextures(1, &fireTexture);
-		glBindTexture(GL_TEXTURE_2D, fireTexture);
+		/*
+			===================
+			[ BASIC 3D SHAPES ]
+			===================
+		*/
 
-		int width, height;
+		pyramidObject.Initalise(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), "Resources/abc.jpg", "Resources/Basic3D.vs", "Resources/Basic3D.fs", pyIndices, pyVerts, "Basic Pyramid", sizeof(pyIndices));
 
-		/* FIRE */
+		simple3DObjects.push_back(&pyramidObject);
 
-		fireSprite.Initalise(glm::vec3(-150.0f, 0.0f, 0.0f), glm::vec3(90.0f, 90.0f, 90.0f), "Resources/fire.png", "Resources/fire.vs", "Resources/fire.fs", fireIndices, fireVerts, "fireSprite");
+		glGenVertexArrays(1, &pyramidObject.VAO);
+		glBindVertexArray(pyramidObject.VAO);
 
-		glGenVertexArrays(1, &fireSprite.VAO);
-		glBindVertexArray(fireSprite.VAO);
+		glGenBuffers(1, &pyramidObject.EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pyramidObject.EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(pyIndices), pyIndices, GL_STATIC_DRAW);
 
-		glGenBuffers(1, &fireSprite.EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fireSprite.EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(fireIndices), fireIndices, GL_STATIC_DRAW);
+		glGenBuffers(1, &pyramidObject.VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, pyramidObject.VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(pyVerts), pyVerts, GL_STATIC_DRAW);
 
-		glGenBuffers(1, &fireSprite.VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, fireSprite.VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(fireVerts), fireVerts, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(
-			0,
-			3,
-			GL_FLOAT,
-			GL_FALSE,
-			8 * sizeof(GLfloat),
-			(GLvoid*)0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (8 * (sizeof(GLfloat))), (GLvoid*)0);
 		glEnableVertexAttribArray(0);
-
-		glVertexAttribPointer(
-			1,
-			3,
-			GL_FLOAT,
-			GL_FALSE,
-			8 * sizeof(GLfloat),
-			(GLvoid*)(3 * sizeof(GLfloat)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, (8 * (sizeof(GLfloat))), (GLvoid*)(3 * (sizeof(GLfloat))));
 		glEnableVertexAttribArray(1);
-
-		glVertexAttribPointer(
-			2,
-			2,
-			GL_FLOAT,
-			GL_FALSE,
-			8 * sizeof(GLfloat),
-			(GLvoid*)(6 * sizeof(GLfloat)));
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, (8 * (sizeof(GLfloat))), (GLvoid*)(6 * (sizeof(GLfloat))));
 		glEnableVertexAttribArray(2);
+		glActiveTexture(GL_TEXTURE0);
+		pyramidObject.texture = textureLoader.loadTexture("Resources/abc.jpg");
+		glBindTexture(GL_TEXTURE_2D, pyramidObject.texture);
+		glUniform1i(glGetUniformLocation(pyramidObject.program, "tex"), 0);
 
-
-
-		/* BABY */
-
-		babySprite.Initalise(glm::vec3(150.0f, 0.0f, 0.0f), glm::vec3(90.0f, 90.0f, 90.0f), "Resources/baby.png", "Resources/baby.vs", "Resources/baby.fs", babyIndices, babyVerts, "babySprite");
-
-		glGenVertexArrays(1, &babySprite.VAO);
-		glBindVertexArray(babySprite.VAO);
-
-		glGenBuffers(1, &babySprite.EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, babySprite.EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(babyIndices), babyIndices, GL_STATIC_DRAW);
-
-		glGenBuffers(1, &babySprite.VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, babySprite.VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(babyVerts), babyVerts, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(
-			0,
-			3,
-			GL_FLOAT,
-			GL_FALSE,
-			8 * sizeof(GLfloat),
-			(GLvoid*)0);
-		glEnableVertexAttribArray(0);
-
-		glVertexAttribPointer(
-			1,
-			3,
-			GL_FLOAT,
-			GL_FALSE,
-			8 * sizeof(GLfloat),
-			(GLvoid*)(3 * sizeof(GLfloat)));
-		glEnableVertexAttribArray(1);
-
-		glVertexAttribPointer(
-			2,
-			2,
-			GL_FLOAT,
-			GL_FALSE,
-			8 * sizeof(GLfloat),
-			(GLvoid*)(6 * sizeof(GLfloat)));
-		glEnableVertexAttribArray(2);
+		/*
+			===========
+			[ SPRITES ]
+		    ===========
+		*/
 
 		/* BACKGROUND */
 
-		backdropSprite.Initalise(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(350.0f, 350.0f, 350.0f), "Resources/back.png", "Resources/back.vs", "Resources/back.fs", backIndices, backVerts, "Backround Layer");
+		backdropSprite.Initalise(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.5f, 1.5f, 1.5f), "Resources/back.png", "Resources/back.vs", "Resources/back.fs", backIndices, backVerts, "Backround Layer");
+
+		//Assign to scenes
+
+		gameSprites.push_back(&backdropSprite);
+		menuSprites.push_back(&backdropSprite);
 
 		glGenVertexArrays(1, &backdropSprite.VAO);
 		glBindVertexArray(backdropSprite.VAO);
@@ -435,19 +463,113 @@ int main(int argc, char** argv) {
 			(GLvoid*)(6 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(2);
 
-		m_Cam.initializeCamera();
+		/* FIRE */
+
+		fireSprite.Initalise(glm::vec3(-1.5f, 0.0f, 0.0f), glm::vec3(1.5f, 1.5f, 1.5f), "Resources/fire.png", "Resources/fire.vs", "Resources/fire.fs", fireIndices, fireVerts, "fireSprite");
+		
+		//Assign to scenes
+
+		gameSprites.push_back(&fireSprite);
+		
+		glGenVertexArrays(1, &fireSprite.VAO);
+		glBindVertexArray(fireSprite.VAO);
+
+		glGenBuffers(1, &fireSprite.EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fireSprite.EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(fireIndices), fireIndices, GL_STATIC_DRAW);
+
+		glGenBuffers(1, &fireSprite.VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, fireSprite.VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(fireVerts), fireVerts, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(
+			0,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			8 * sizeof(GLfloat),
+			(GLvoid*)0);
+		glEnableVertexAttribArray(0);
+
+		glVertexAttribPointer(
+			1,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			8 * sizeof(GLfloat),
+			(GLvoid*)(3 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(1);
+
+		glVertexAttribPointer(
+			2,
+			2,
+			GL_FLOAT,
+			GL_FALSE,
+			8 * sizeof(GLfloat),
+			(GLvoid*)(6 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(2);
+
+		/* BABY */
+
+		babySprite.Initalise(glm::vec3(1.5f, 0.0f, 0.0f), glm::vec3(1.5f, 1.5f, 1.5f), "Resources/baby.png", "Resources/baby.vs", "Resources/baby.fs", babyIndices, babyVerts, "babySprite");
+
+		//Assign to scenes
+
+		gameSprites.push_back(&babySprite);
+
+		glGenVertexArrays(1, &babySprite.VAO);
+		glBindVertexArray(babySprite.VAO);
+
+		glGenBuffers(1, &babySprite.EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, babySprite.EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(babyIndices), babyIndices, GL_STATIC_DRAW);
+
+		glGenBuffers(1, &babySprite.VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, babySprite.VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(babyVerts), babyVerts, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(
+			0,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			8 * sizeof(GLfloat),
+			(GLvoid*)0);
+		glEnableVertexAttribArray(0);
+
+		glVertexAttribPointer(
+			1,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			8 * sizeof(GLfloat),
+			(GLvoid*)(3 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(1);
+
+		glVertexAttribPointer(
+			2,
+			2,
+			GL_FLOAT,
+			GL_FALSE,
+			8 * sizeof(GLfloat),
+			(GLvoid*)(6 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(2);
+
+		/* CAMERA */
+
+		mCam.initializeCamera();
 
 		/* AUDIO */
 
-		m_Audio.Play(m_Audio.SPEECH);
+		mAudio.Play(mAudio.SPEECH);
 
 		/* TEXT */
-		m_Score = TextLabel(m_Screen, "SCORE: 0", "Resources/DIN1451.ttf", glm::vec2(-250.0f, 300.0f));
-		m_GameOverText = TextLabel(m_Screen, "GAMEOVER", "Resources/DIN1451.ttf", glm::vec2(-240.0f, 300.0f));
-		m_MainText = TextLabel(m_Screen, "Art\n-Henry Oliver\n\nMain Menu\n\nSelect a mode:\n1. Normal mode\n2. Lecturer/Easy mode", "Resources/Arial.ttf", glm::vec2(-240.0f, 300.0f));
-		m_Score.SetScale(static_cast<GLfloat>(0.65));
-		m_GameOverText.SetScale(static_cast<GLfloat>(0.5));
-		m_MainText.SetScale(static_cast<GLfloat>(0.5));
+		mScore = TextLabel(mScreen, "SCORE: 0", "Resources/DIN1451.ttf", glm::vec2(-250.0f, 300.0f));
+		gameOverText = TextLabel(mScreen, "GAMEOVER", "Resources/DIN1451.ttf", glm::vec2(-240.0f, 300.0f));
+		mainText = TextLabel(mScreen, "Art\n-Henry Oliver\n\nMain Menu\n\nSelect a mode:\n1. Normal mode\n2. Lecturer/Easy mode", "Resources/Arial.ttf", glm::vec2(-240.0f, 300.0f));
+		mScore.SetScale(static_cast<GLfloat>(0.65));
+		gameOverText.SetScale(static_cast<GLfloat>(0.5));
+		mainText.SetScale(static_cast<GLfloat>(0.5));
 
 		glutDisplayFunc(Render);
 
@@ -465,7 +587,7 @@ int main(int argc, char** argv) {
 	}
 
 	catch (...) {
-		Console_OutputLog("Somethign went wrong when trying to lauch the game", LOGFATAL);
+		Console_OutputLog("Something went wrong when trying to lauch the game", LOGFATAL);
 	}
 
 	return 0;

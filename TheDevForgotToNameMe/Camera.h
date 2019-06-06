@@ -10,7 +10,9 @@ class Camera
 {
 public:
 	void initializeCamera();
-	void calculate(ScreenInfo m_Screen);
+	void Tick(ScreenInfo m_Screen, float deltaTime);
+
+	glm::mat4 getMVP(glm::vec3 postion, glm::vec3 scale, glm::mat4 rotationZ);
 
 	glm::vec3 camPos;
 	glm::vec3 camLookDir;
@@ -25,4 +27,14 @@ public:
 
 	float halfw = 0.0f;
 	float halfh = 0.0f;
+	float maxRenderDistance = 10000.0f;
+	float minRenderDistance = 0.1f;
+	float FOV = 90.0f;
+	float timeElapsed = 0.0f;
+
+	//Used for orbiting
+	GLfloat radius = 1.0f;
+	bool orbitCam = true;
+
+	bool orthoMode = false;
 };

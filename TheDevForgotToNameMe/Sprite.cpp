@@ -74,6 +74,8 @@ void Sprite::Initalise(glm::vec3 _position, glm::vec3 _scale, std::string textur
 			(GLvoid*)(6 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(2);
 
+		//sprites->push_back(this);
+
 		Console_OutputLog("Initalised Sprite: " + name, LOGINFO);
 	}
 	catch (...) {

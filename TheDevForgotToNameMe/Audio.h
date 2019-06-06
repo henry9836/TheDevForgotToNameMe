@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <fmod.hpp>
+#include "ConsoleController.h"
 
 class AudioSystem {
 public:

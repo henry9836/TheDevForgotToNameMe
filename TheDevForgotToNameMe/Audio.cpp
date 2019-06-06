@@ -5,12 +5,12 @@ bool AudioSystem::AudioInit()
 	FMOD_RESULT result;
 	result = FMOD::System_Create(&audioSystem);
 	if (result != FMOD_OK) {
-		std::cout << "ERROR WITH INIT AUDIO" << std::endl;
+		Console_OutputLog("Cannot Initalise Audio FMOD_OK Check Failed!", LOGWARN);
 		return false;
 	}
 	result = audioSystem->init(100, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0);
 	if (result != FMOD_OK) {
-		std::cout << "ERROR WITH INIT AUDIO" << std::endl;
+		Console_OutputLog("Cannot Initalise Audio FMOD_OK Check Failed!", LOGWARN);
 		return false;
 	}
 
@@ -18,27 +18,27 @@ bool AudioSystem::AudioInit()
 
 	result = audioSystem->createSound("Resources/BabyLoop.wav", FMOD_LOOP_NORMAL, 0, &babyBackTrack);
 	if (result != FMOD_OK) {
-		std::cout << "ERROR WITH INIT AUDIO: BABY LOOP" << std::endl;
+		Console_OutputLog("Cannot Initalise Audio Track BabyLoop.wav", LOGWARN);
 		return false;
 	}
 	result = audioSystem->createSound("Resources/FireLoop.wav", FMOD_LOOP_NORMAL, 0, &fireBackTrack);
 	if (result != FMOD_OK) {
-		std::cout << "ERROR WITH INIT AUDIO: FIRE LOOP" << std::endl;
+		Console_OutputLog("Cannot Initalise Audio Track FireLoop.wav", LOGWARN);
 		return false;
 	}
 	result = audioSystem->createSound("Resources/about.wav", FMOD_DEFAULT, 0, &speechTrack);
 	if (result != FMOD_OK) {
-		std::cout << "ERROR WITH INIT AUDIO: SPEECH" << std::endl;
+		Console_OutputLog("Cannot Initalise Audio Track about.wav", LOGWARN);
 		return false;
 	}
 	result = audioSystem->createSound("Resources/Win.wav", FMOD_DEFAULT, 0, &wonTrack);
 	if (result != FMOD_OK) {
-		std::cout << "ERROR WITH INIT AUDIO: WON" << std::endl;
+		Console_OutputLog("Cannot Initalise Audio Track Win.wav", LOGWARN);
 		return false;
 	}
 	result = audioSystem->createSound("Resources/Lose_Full.wav", FMOD_DEFAULT, 0, &lostTrack);
 	if (result != FMOD_OK) {
-		std::cout << "ERROR WITH INIT AUDIO: LOSE" << std::endl;
+		Console_OutputLog("Cannot Initalise Audio Track Lose_Full.wav", LOGWARN);
 		return false;
 	}
 
@@ -72,14 +72,14 @@ void AudioSystem::Play(int track) {
 	}
 	default: {
 		foundtrack = false;
-		std::cout << "Track " << track << " Doesn't Exist" << std::endl;
+		Console_OutputLog("Audio Track: " + std::to_string(track) + " was called but it doesn't exist", LOGWARN);
 		break;
 	}
 	}
 
 	if (foundtrack) {
 		if (result != FMOD_OK) {
-			std::cout << "ERROR WITH PLAYING AUDIO" << std::endl;
+			Console_OutputLog("Audio Track: " + std::to_string(track) + " was called but cannot be played", LOGWARN);
 			return;
 		}
 	}

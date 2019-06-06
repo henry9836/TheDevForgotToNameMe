@@ -45,6 +45,12 @@
     <ClCompile Include="ConsoleController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ft2build.h">
@@ -84,6 +90,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ConsoleController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

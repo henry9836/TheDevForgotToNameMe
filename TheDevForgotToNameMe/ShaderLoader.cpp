@@ -94,7 +94,10 @@ void ShaderLoader::PrintErrorDetails(bool isShader, GLuint id, const char* name)
 	if (log.size() == 0) { log.push_back('\0'); }
 
 	// Retrieve the log info and populate log variable
-	(isShader == true) ? glGetShaderInfoLog(id, infoLogLength, NULL, &log[0]) : glGetProgramInfoLog(id, infoLogLength, NULL, &log[0]);		
-	std::cout << "Error compiling " << ((isShader == true) ? "shader" : "program") << ": " << name << std::endl;
+	(isShader == true) ? glGetShaderInfoLog(id, infoLogLength, NULL, &log[0]) : glGetProgramInfoLog(id, infoLogLength, NULL, &log[0]);
+	
+	std::string error = "Error compiling Shader: ";
+	error += name;
+	Console_OutputLog(error, LOGWARN);
 	std::cout << &log[0] << std::endl;
 }

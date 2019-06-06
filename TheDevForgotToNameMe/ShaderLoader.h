@@ -7,6 +7,8 @@
 // Library Includes
 #include <iostream>
 
+#include "ConsoleController.h"
+
 class ShaderLoader
 {
 	
