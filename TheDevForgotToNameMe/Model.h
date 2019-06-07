@@ -43,22 +43,21 @@ public:
 	Model() {};
 	/*  Functions   */
 	// Constructor, expects a filepath to a 3D model.
-	Model(std::string path, Camera* cam, std::string _name, float rotationAngle, glm::vec3 rotationAxisZ, glm::vec3 position, glm::vec3 scale){
+	Model(std::string path, Camera* cam, std::string _name, float _rotationAngle, glm::vec3 _rotationAxisZ, glm::vec3 _position, glm::vec3 _scale, std::string _vertexShaderFile, std::string _fragmentShaderFile){
 
 		Console_OutputLog("Initialising 3D Object: " + _name, LOGINFO);
 
 		// EDIT
-		this->program = ShaderLoader::CreateProgram("Resources/3DObject_Diffuse.vs", "Resources/3DObject_Phong.fs");
-		//this->program = ShaderLoader::GetInstance()->CreateProgram("Model.vs", "Model.fs");
+		this->program = ShaderLoader::CreateProgram(_vertexShaderFile.c_str(), _fragmentShaderFile.c_str());
 
 		// EDIT END
 
 		this->camera = cam;
 		this->loadModel(path);
-		this->rotationAngle = rotationAngle;
-		this->rotationAxisZ = rotationAxisZ;
-		this->position = position;
-		this->scale = scale;
+		this->rotationAngle = _rotationAngle;
+		this->rotationAxisZ = _rotationAxisZ;
+		this->position = _position;
+		this->scale = _scale;
 
 		Console_OutputLog("Initialised 3D Object: " + _name, LOGINFO);
 	}

@@ -33,7 +33,7 @@ public:
 	float timeElapsed = 0.0f;
 
 	//Used for orbiting
-	GLfloat radius = 1.0f;
+	GLfloat radius = 2.0f;
 	bool orbitCam = true;
 
 	bool orthoMode = false;

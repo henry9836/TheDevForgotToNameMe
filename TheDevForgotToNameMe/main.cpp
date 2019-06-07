@@ -324,7 +324,7 @@ void Render() {
 
 void Update() {
 	currentTime = static_cast<float>(glutGet(GLUT_ELAPSED_TIME));
-	deltaTime = ((currentTime - pasttime) * 0.1f) * 0.01f;;
+	deltaTime = ((currentTime - pasttime) * 0.001f);
 	pasttime = currentTime;
 	glutPostRedisplay();
 	mAudio.Tick();
@@ -375,7 +375,7 @@ int main(int argc, char** argv) {
 			==============
 		*/
 
-		tankModel = Model::Model("Resources/Models/Tank/Tank.obj", &mCam, "Tank", rotationAngle, rotZ, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		tankModel = Model::Model("Resources/Models/Tank/Tank.obj", &mCam, "Tank", rotationAngle, rotZ, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), "Resources/3DObject_Diffuse.vs", "Resources/3DObject_BlinnPhong.fs");
 		mainModels.push_back(&tankModel);
 
 		/*
