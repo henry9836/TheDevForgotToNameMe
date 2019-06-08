@@ -7,7 +7,7 @@
 void Camera::initializeCamera()
 {
 	Console_OutputLog("Initialising Camera...", LOGINFO);
-	camPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	camPos = glm::vec3(0.0f, 0.0f, 0.0f);
 	camLookDir = glm::vec3(0.0f, 0.0f, -1.0f);
 	camUpDir = glm::vec3(0.0f, 1.0f, 0.0f);
 	Console_OutputLog("Initialised Camera", LOGINFO);
@@ -21,6 +21,14 @@ void Camera::Tick(ScreenInfo m_Screen, float deltaTime)
 		camPos.y = 1.5f;
 		camPos.z = cos(timeElapsed) * radius;
 		camTar = glm::vec3(0.0f, 0.0f, 0.0f);
+		if (followCam) {
+			camTar = glm::vec3(camFollowTar + lookDirFromFollow);
+			if (!staticCam) {
+				camPos.x = (sin(timeElapsed) * radius) + camFollowTar.x;
+				camPos.y = camFollowTar.y + height;
+				camPos.z = (cos(timeElapsed) * radius) + camFollowTar.z;
+			}
+		}
 		view = glm::lookAt(camPos, camTar, camUpDir);
 		if (orthoMode) {
 			halfw = (float)m_Screen.SCR_WIDTH * 0.5f;
@@ -32,9 +40,16 @@ void Camera::Tick(ScreenInfo m_Screen, float deltaTime)
 		}
 	}
 	else {
-		newPos = glm::vec4(0, 0, 3, 1);
-		camPos = glm::vec3(newPos);
+		camPos = glm::vec3(camStartPos);
 		camTar = glm::vec3(0.0f, 0.0f, 0.0f);
+		if (followCam) {
+			camTar = glm::vec3(camFollowTar + lookDirFromFollow);
+			if (!staticCam) {
+				camPos.x = camFollowTar.x;
+				camPos.y = camFollowTar.y + height;
+				camPos.z = camFollowTar.z;
+			}
+		}
 		view = glm::lookAt(camPos, camTar, camUpDir);
 		if (orthoMode) {
 			halfw = (float)m_Screen.SCR_WIDTH * 0.5f;

@@ -74,16 +74,17 @@ public:
 		
 		// EDIT
 		glm::mat4 model;
-
 		glm::mat4 translationMatrix = glm::translate(glm::mat4(), position);
 		glm::mat4 rotationZ = glm::rotate(glm::mat4(), glm::radians(rotationAngle), rotationAxisZ);
 		glm::mat4 scaleMatrix = glm::scale(glm::mat4(), scale);
 		model = translationMatrix * rotationZ * scaleMatrix;
-		//glm::mat4 scale = glm::scale(glm::mat4(), glm::vec3(0.2f, 0.2f, 0.2f));
-		glm::mat4 mvp = camera->proj * camera->view * glm::scale(glm::mat4(), glm::vec3(0.2f, 0.2f, 0.2f));
-		//glm::mat4 mvp = camera->GetVPMatrix() * scale;
+		glm::mat4 mvp = camera->proj * camera->view * glm::scale(glm::mat4(), scale);
+
+		//POSITION AND SCALE
+		glm::mat4 projCalc = camera->proj * camera->view * model;
+
 		GLint mvpLoc = glGetUniformLocation(program, "proj_calc");
-		glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+		glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(projCalc));
 		GLint lightModel = glGetUniformLocation(program, "model");
 		glUniformMatrix4fv(lightModel, 1, GL_FALSE, glm::value_ptr(model));
 		// EDIT END

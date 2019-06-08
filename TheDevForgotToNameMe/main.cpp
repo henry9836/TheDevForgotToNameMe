@@ -42,6 +42,7 @@ TextLabel mainText;
 GameManager m_Game;
 ObjectManager babyObjManager;
 ObjectManager fireObjManager;
+ObjectManager objManager;
 LoadTexture textureLoader;
 
 //Sprite
@@ -61,6 +62,9 @@ vector<Simple3DObject*> simple3DObjects;
 vector<Sprite*> menuSprites;
 vector<Sprite*> gameSprites;
 vector<Model*> mainModels;
+
+//Cubemap
+CubeMap cubeMap;
 
 //Global Vars
 
@@ -220,23 +224,29 @@ void checkCollision(glm::vec4 box1, glm::vec4 box2)
 void Render() {
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-	//r = (rand() % 10 + 1) / 10.0f;
-	//g = (rand() % 10 + 1) / 10.0f;
-	//b = (rand() % 10 + 1) / 10.0f;
+	r = (rand() % 10 + 1) / 10.0f;
+	g = (rand() % 10 + 1) / 10.0f;
+	b = (rand() % 10 + 1) / 10.0f;
 
 	glClearColor(r, g, b, 1.0);
 
-	/* CAMERA */
-
+	/* Tick */
+	
+	mCam.camFollowTar = tankModel.position;
 	mCam.Tick(mScreen, deltaTime);
-
-	/* Sprite Tick */
 
 	glm::vec3 rotationAxisZ = glm::vec3(1.0f, 0.0f, 0.0f);
 
 	fireSprite.Tick(rotationAngle, rotationAxisZ, mCam);
 	babySprite.Tick(rotationAngle, rotationAxisZ, mCam);
 	backdropSprite.Tick(rotationAngle, rotationAxisZ, mCam);
+
+	cubeMap.Update();
+
+	MovementPacket tmp = objManager.Move(objManager.PLAYER, 2.0f, mAudio, deltaTime, glm::vec2(100.0f, 100.0f), tankModel.position, tankModel.rotationAngle);
+
+	tankModel.position = tmp.newPosition;
+	tankModel.rotationAngle = tmp.newRotation;
 
 	//MOVE OBJECTS
 	
@@ -260,6 +270,14 @@ void Render() {
 		checkCollision(playerbox, enemybox);
 	}
 
+	/*
+		===========
+		[RENDERING]
+		===========
+	*/
+
+	cubeMap.Render();
+
 	for (size_t i = 0; i < simple3DObjects.size(); i++)
 	{
 		//simple3DObjects.at(i)->Render(mCam);
@@ -269,6 +287,8 @@ void Render() {
 	{
 		mainModels.at(i)->Render();
 	}
+
+	
 
 	// MAIN MENU
 
@@ -375,8 +395,16 @@ int main(int argc, char** argv) {
 			==============
 		*/
 
-		tankModel = Model::Model("Resources/Models/Tank/Tank.obj", &mCam, "Tank", rotationAngle, rotZ, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), "Resources/3DObject_Diffuse.vs", "Resources/3DObject_BlinnPhong.fs");
+		tankModel = Model::Model("Resources/Models/Tank/Tank.obj", &mCam, "Tank", rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.5f, 0.5f, 0.5f), "Resources/3DObject_Diffuse.vs", "Resources/3DObject_BlinnPhong.fs");
 		mainModels.push_back(&tankModel);
+
+		/*
+			============
+			[ CUBEMAPS ]
+			============
+		*/
+
+		cubeMap.Initalise(&mCam, "Resources/CubeMap/Witcher/", "Witcher Terrain Cube Map");
 
 		/*
 			===================

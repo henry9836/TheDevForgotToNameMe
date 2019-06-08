@@ -2,6 +2,7 @@
 
 Input m_input;
 
+
 ObjectManager::ObjectManager()
 {
 
@@ -15,6 +16,65 @@ ObjectManager::~ObjectManager()
 void ObjectManager::Reset()
 {
 	objPos = glm::vec3(0.0f, 0.0f, 0.0f);
+}
+
+MovementPacket ObjectManager::Move(OBJECTTYPE objType, float speed, AudioSystem& audio, GLfloat deltaTime, glm::vec2 maxWorldSize, glm::vec3 currentPos, float currentRotation) {
+	
+	MovementPacket currentState;
+	
+	currentState.newPosition = currentPos;
+	currentState.newRotation = currentRotation;
+
+	if (objType == PLAYER) {
+		if (m_input.CheckKeyDown('w'))
+		{
+			currentState.newPosition.x += speed * deltaTime;
+			currentState.newRotation = 270.0;
+		}
+		if (m_input.CheckKeyDown('s'))
+		{
+			currentState.newPosition.x -= speed * deltaTime;
+			currentState.newRotation = 90.0f;
+		}
+		if (m_input.CheckKeyDown('a'))
+		{
+			currentState.newPosition.z -= speed * deltaTime;
+			currentState.newRotation = 0.0f;
+		}
+		if (m_input.CheckKeyDown('d'))
+		{
+			currentState.newPosition.z += speed * deltaTime;
+			currentState.newRotation = 180.0f;
+		}
+		/* OLD MOVEMENT */
+		/*
+		if (m_input.CheckKeyDown('w'))
+		{
+			currentState.newPosition.z -= speed * deltaTime;
+		}
+		if (m_input.CheckKeyDown('s'))
+		{
+			currentState.newPosition.z += speed * deltaTime;
+		}
+		if (m_input.CheckKeyDown('a'))
+		{
+			currentState.newPosition.x -= speed * deltaTime;
+		}
+		if (m_input.CheckKeyDown('d'))
+		{
+			currentState.newPosition.x += speed * deltaTime;
+		}
+		if (m_input.CheckKeyDown('q'))
+		{
+			currentState.newRotation += (speed * 5) * deltaTime;
+		}
+		if (m_input.CheckKeyDown('e'))
+		{
+			currentState.newRotation -= (speed * 5) * deltaTime;
+		}
+		*/
+	}
+	return currentState;
 }
 
 void ObjectManager::movement(AudioSystem& audio2, GLfloat deltaTime, float screenW, float screenH, bool isEnemy)

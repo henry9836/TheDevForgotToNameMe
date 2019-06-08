@@ -68,8 +68,7 @@ public:
 		for (GLuint i = 0; i < this->meshes.size(); i++) {
 
 		//printf("mesh size: %d \n", meshes.size());
-
-			this->meshes[i].Render(camera, program, rotationAngle, rotationAxisZ, position, scale);
+			this->meshes[i].Render(this->camera, this->program, this->rotationAngle, this->rotationAxisZ, this->position, this->scale);
 		}
 	}
 

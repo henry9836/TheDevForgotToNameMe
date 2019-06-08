@@ -14,6 +14,7 @@ public:
 
 	glm::mat4 getMVP(glm::vec3 postion, glm::vec3 scale, glm::mat4 rotationZ);
 
+	glm::vec4 camStartPos = glm::vec4(-10, 10, 0, 1);;
 	glm::vec3 camPos;
 	glm::vec3 camLookDir;
 	glm::vec3 camUpDir;
@@ -23,6 +24,7 @@ public:
 
 	glm::mat4 view;
 	glm::vec3 camTar;
+	glm::vec3 camFollowTar;
 	glm::mat4 proj;
 
 	float halfw = 0.0f;
@@ -32,9 +34,12 @@ public:
 	float FOV = 90.0f;
 	float timeElapsed = 0.0f;
 
-	//Used for orbiting
-	GLfloat radius = 2.0f;
-	bool orbitCam = true;
+	GLfloat radius = 5.0f;
+	GLfloat height = 3.0f;
+	glm::vec3 lookDirFromFollow = glm::vec3(0.0f, 0.0f, 0.0f);
 
+	bool staticCam = true;
+	bool orbitCam = false;
+	bool followCam = true;
 	bool orthoMode = false;
 };
