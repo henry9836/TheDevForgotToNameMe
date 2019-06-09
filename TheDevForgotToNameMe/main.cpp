@@ -46,7 +46,7 @@ GameManager m_Game;
 ObjectManager objManager;
 LoadTexture textureLoader;
 
-//Sprite
+//Sprites
 Sprite backdropSprite;
 
 //Models
@@ -73,10 +73,10 @@ float g = 0.0;
 
 glm::vec3 rotZ = glm::vec3(0.0f, 0.0f, 1.0f);
 
-float rotationAngle = 0;
-float currentTime;
-float deltaTime;
-float pasttime;
+float rotationAngle = 0.0f;
+float currentTime = 0.0f;
+float deltaTime = 0.0f;
+float pasttime = 0.0f;
 
 GLuint backIndices[] = {
 	0, 1, 2,
@@ -90,6 +90,8 @@ GLfloat backVerts[] = {
 	1.0f, -1.0f, 0.0f,	0.0f, 1.0f, 0.0f,	1.0f, 1.0f,		//bottom right	3
 };
 
+
+//Render function displays everything on the screen
 void Render() {
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
@@ -101,9 +103,9 @@ void Render() {
 
 	/* Tick */
 	
-	mCam.Tick(mScreen, deltaTime);
-
 	glm::vec3 rotationAxisZ = glm::vec3(1.0f, 0.0f, 0.0f);
+
+	mCam.Tick(mScreen, deltaTime);
 
 	backdropSprite.Tick(rotationAngle, rotationAxisZ, mCam);
 
@@ -111,6 +113,7 @@ void Render() {
 
 	int diff = 0;
 
+	//for loop removes one bullet from the vector of bullets if it has existed beyond it's lifetime and deconstructs it
 	for (size_t i = 0; i < bulletObjects.size() - diff; i++)
 	{
 		if (!bulletObjects.empty()) {
@@ -132,10 +135,9 @@ void Render() {
 				bulletObjects.clear();
 
 				for (size_t k = 0; k < tmpBullets.size(); k++) {
-					if (k != i) {
-						bulletObjects.push_back(tmpBullets.at(k));
-					}
+					bulletObjects.push_back(tmpBullets.at(k));
 				}
+				tmpBullets.erase(tmpBullets.begin(), tmpBullets.end());
 				tmpBullets.clear();
 			}
 		}
@@ -155,7 +157,7 @@ void Render() {
 	cubeMap.Render();
 	
 
-	// MAIN MENU
+	// MAIN MENU SCENE
 
 	if (!m_Game.gameover && m_Game.currentScreen == m_Game.MAIN) {
 
@@ -179,7 +181,7 @@ void Render() {
 		highscoreText.Render();
 	}
 
-	// GAME
+	// GAME SCENE
 
 	else if (!m_Game.gameover && m_Game.currentScreen == m_Game.GAME) {
 		//Update Text
@@ -225,8 +227,11 @@ void Render() {
 
 		//Enemy Update
 
+		//Collider Box Border Width
 		float border = 2.0f;
 		float Bulletborder = 1.0f;
+
+		//Add a collider around the player
 		glm::vec4 playerCollider = glm::vec4(tankModel.position.x + border, tankModel.position.z + border, tankModel.position.x - border, tankModel.position.z - border); //perimeter of collider //top right bottom left
 
 		for (size_t i = 0; i < enemyObjects.size(); i++)
@@ -239,56 +244,61 @@ void Render() {
 
 			//Collisons
 
+			//DEBUG
 			//Console_OutputLog("COLLIDER INFO\n[TOP:" + std::to_string(playerCollider.x) +"] [RIGHT: " + std::to_string(playerCollider.y) + "] [BOTTOM: " + std::to_string(playerCollider.z) + "] [LEFT: " + std::to_string(playerCollider.w) + "]\nME [X:" + std::to_string(enemyObjects.at(i)->object->position.x) + "] [Z: " + std::to_string(enemyObjects.at(i)->object->position.z) + "]",LOGINFO);
 
-			//Hit Player
+			//Are we touching the player
 			if (((enemyObjects.at(i)->object->position.x > playerCollider.z) && (enemyObjects.at(i)->object->position.x < playerCollider.x)) && ((enemyObjects.at(i)->object->position.z > playerCollider.w) && (enemyObjects.at(i)->object->position.z < playerCollider.y))) {
 				m_Game.lives -= 1;
-				enemyObjects.at(i)->amAllowedAlive = false;
+				enemyObjects.at(i)->amAllowedAlive = false; //mark for deconstruction
 				mAudio.Play(mAudio.HIT);
+				
 			}
 
 			//Hit Bullet
-
+			//for each bullet in the scene check if touching enemy
 			for (size_t k = 0; k < bulletObjects.size(); k++)
 			{
+				//Add collider to bulletObjects.at(k)
 				glm::vec4 bulletCollider = glm::vec4(bulletObjects.at(k)->object->position.x + Bulletborder, bulletObjects.at(k)->object->position.z + Bulletborder, bulletObjects.at(k)->object->position.x - Bulletborder, bulletObjects.at(k)->object->position.z - Bulletborder); //perimeter of collider //top right bottom left
 				if (((enemyObjects.at(i)->object->position.x > bulletCollider.z) && (enemyObjects.at(i)->object->position.x < bulletCollider.x)) && ((enemyObjects.at(i)->object->position.z > bulletCollider.w) && (enemyObjects.at(i)->object->position.z < bulletCollider.y))) {
 					m_Game.score += 50;
-					enemyObjects.at(i)->amAllowedAlive = false;
-					bulletObjects.at(k)->deadLifeTime = 0.0f;
+					enemyObjects.at(i)->amAllowedAlive = false; //mark for deconstruction
+					bulletObjects.at(k)->deadLifeTime = 0.0f; //mark for deconstruction
 					mAudio.Play(mAudio.HIT);
 				}
 			}
 		}
 
 		//kill any enemies that are marked for death
-
+		//for loop removes one enemy from the vector of enemies if it has collided with something and deconstructs it
 		for (size_t i = 0; i < enemyObjects.size() - diff; i++)
 		{
 			if (!enemyObjects.empty()) {
 				if (enemyObjects.size() >= i) {
-					if (!enemyObjects.at(i)->amAllowedAlive) {
+					if (!enemyObjects.at(i)->amAllowedAlive) { //Is the enemy object marked for deconstruction
 						Console_OutputLog("Killing Instance Of Enemy", LOGINFO);
 						diff++;
-						std::vector<Enemy*> tmpEnemies;
+						std::vector<Enemy*> tmpEnemies; //temporary vector to store objects
 
 						for (size_t k = 0; k < enemyObjects.size(); k++)
 						{
-							if (k != i) {
+							if (k != i) { //do not copy the marked object into the tmp vector
 								tmpEnemies.push_back(enemyObjects.at(k));
 							}
 						}
 
+						//deconstruct enemyObject and reset main vector
 						delete enemyObjects[i];
 						enemyObjects.erase(enemyObjects.begin(), enemyObjects.end());
 						enemyObjects.clear();
 
+						//move all elements from tmp vector back into main vector
 						for (size_t k = 0; k < tmpEnemies.size(); k++) {
-							if (k != i) {
-								enemyObjects.push_back(tmpEnemies.at(k));
-							}
+							enemyObjects.push_back(tmpEnemies.at(k));
 						}
+
+						//clear tmp vector
 						tmpEnemies.erase(tmpEnemies.begin(), tmpEnemies.end());
 						tmpEnemies.clear();
 					}
@@ -309,11 +319,11 @@ void Render() {
 		mLivesText.Render();
 	}
 
-	// GAMEOVER
+	// GAMEOVER SCENE
 
 	else {
 
-		
+		//Deconstruct enemies
 		for (size_t i = 0; i < enemyObjects.size(); i++)
 		{
 			delete enemyObjects[i];
@@ -331,14 +341,18 @@ void Render() {
 	glutSwapBuffers();
 }
 
+
+//Update Function
 void Update() {
+	//Set deltaTime
 	currentTime = static_cast<float>(glutGet(GLUT_ELAPSED_TIME));
 	deltaTime = ((currentTime - pasttime) * 0.001f);
 	pasttime = currentTime;
+	
 	glutPostRedisplay();
-	mAudio.Tick();
-	m_Game.CheckGeneralInput(m_Game);
-	if (m_Game.leave) {
+	mAudio.Tick(); //Update Audio
+	m_Game.CheckGeneralInput(m_Game); //Get Current Keyboard Input State
+	if (m_Game.leave) { //Quit Game
 		glutLeaveMainLoop();
 	}
 }
@@ -346,13 +360,15 @@ void Update() {
 int main(int argc, char** argv) {
 	
 	try {
-		Console_Banner();
-		srand((unsigned int)time(NULL));
+		Console_Banner(); //Show Console Controller Banner
+		srand((unsigned int)time(NULL)); //get a seed ready for random generation
 
 		Console_OutputLog("Initialising Game...", LOGINFO);
 
 		m_Game.score = 0;
 		m_Game.gameover = false;
+
+		//glut init
 
 		glutInit(&argc, argv);
 		glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
@@ -373,11 +389,25 @@ int main(int argc, char** argv) {
 		glCullFace(GL_BACK);
 		glFrontFace(GL_CCW);
 
+		glClearColor(1.0, 0.0, 0.0, 1.0);
+		
+		/*
+			===============================================
+			// CREATE, INITALISE AND ASSIGN GAME OBJECTS //
+			===============================================
+		*/
+
+
+		/*
+			=========
+			[ AUDIO ]
+			=========
+		*/
+
 		if (!mAudio.AudioInit()) {
 			Console_OutputLog("Audio Inialistation Failed!", LOGWARN);
 		}
-
-		glClearColor(1.0, 0.0, 0.0, 1.0);
+		mAudio.Play(mAudio.AMBIENT);
 
 		/*
 			==============
@@ -386,8 +416,8 @@ int main(int argc, char** argv) {
 		*/
 
 		tankModel = Model::Model("Resources/Models/Tank/Tank.obj", &mCam, "Tank", rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.5f, 0.5f, 0.5f), "Resources/3DObject_Diffuse.vs", "Resources/3DObject_BlinnPhong.fs");
-		mainModels.push_back(&tankModel);
-		menuModels.push_back(&tankModel);
+		mainModels.push_back(&tankModel); //Assign to scene
+		menuModels.push_back(&tankModel); //Assign to scene
 
 		/*
 			============
@@ -403,13 +433,9 @@ int main(int argc, char** argv) {
 		    ===========
 		*/
 
-		/* BACKGROUND */
-
 		backdropSprite.Initalise(glm::vec3(1.0f, 1.0f, 5.0f), glm::vec3(2.0f, 2.0f, 2.0f), "Resources/back.png", "Resources/back.vs", "Resources/back.fs", backIndices, backVerts, "Backround Layer");
 
-		//Assign to scenes
-
-		menuSprites.push_back(&backdropSprite);
+		menuSprites.push_back(&backdropSprite); //Assign to scene
 
 		
 		glGenVertexArrays(1, &backdropSprite.VAO);
@@ -450,15 +476,19 @@ int main(int argc, char** argv) {
 			(GLvoid*)(6 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(2);
 
-		/* CAMERA */
+		/*
+			==========
+			[ CAMERA ]
+			==========
+		*/
 
 		mCam.initializeCamera();
 
-		/* AUDIO */
-
-		mAudio.Play(mAudio.AMBIENT);
-
-		/* TEXT */
+		/*
+			========
+			[ TEXT ]
+			========
+		*/
 		mScore = TextLabel(mScreen, "SCORE: 0", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 200.0f));
 		mLivesText = TextLabel(mScreen, "LIVES: 3", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 100.0f));
 		mWaveNum = TextLabel(mScreen, "WAVE: 1", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 150.0f));
@@ -472,8 +502,12 @@ int main(int argc, char** argv) {
 		mainText.SetScale(static_cast<GLfloat>(0.5));
 		highscoreText.SetScale(static_cast<GLfloat>(0.5));
 
+		//Addition Items To Set Up
+
 		m_Game.enemyList = &enemyObjects;
 		m_Game.mCam = &mCam;
+
+		//Start The Game
 
 		glutDisplayFunc(Render);
 
@@ -490,8 +524,8 @@ int main(int argc, char** argv) {
 		glutMainLoop();
 	}
 
-	catch (...) {
-		Console_OutputLog("Something went wrong and the application cannot recover\nError Code: Unknown", LOGFATAL);
+	catch (...) { //If we go here there is no recovery
+		Console_OutputLog("Something went wrong and the application cannot recover", LOGFATAL);
 		system("pause");
 	}
 
