@@ -8,14 +8,14 @@ void Sprite::Initalise(glm::vec3 _position, glm::vec3 _scale, std::string textur
 
 	try
 	{
-		position = _position;
-		scale = _scale;
-		name = _name;
+		this->position = _position;
+		this->scale = _scale;
+		this->name = _name;
 
 		//Texture
 
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glGenTextures(1, &this->texture);
+		glBindTexture(GL_TEXTURE_2D, this->texture);
 
 		int width, height;
 
@@ -34,17 +34,17 @@ void Sprite::Initalise(glm::vec3 _position, glm::vec3 _scale, std::string textur
 
 		//Program
 
-		program = ShaderLoader::CreateProgram(vShaderFilePath.c_str(), fShaderFilePath.c_str());
+		this->program = ShaderLoader::CreateProgram(vShaderFilePath.c_str(), fShaderFilePath.c_str());
 
-		glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
+		glGenVertexArrays(1, &this->VAO);
+		glBindVertexArray(this->VAO);
 
-		glGenBuffers(1, &EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glGenBuffers(1, &this->EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 
-		glGenBuffers(1, &VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glGenBuffers(1, &this->VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(Verts), Verts, GL_STATIC_DRAW);
 
 		glVertexAttribPointer(
@@ -74,8 +74,6 @@ void Sprite::Initalise(glm::vec3 _position, glm::vec3 _scale, std::string textur
 			(GLvoid*)(6 * sizeof(GLfloat)));
 		glEnableVertexAttribArray(2);
 
-		//sprites->push_back(this);
-
 		Console_OutputLog("Initalised Sprite: " + name, LOGINFO);
 	}
 	catch (...) {
@@ -85,12 +83,12 @@ void Sprite::Initalise(glm::vec3 _position, glm::vec3 _scale, std::string textur
 
 void Sprite::Tick(float rotationAngle, glm::vec3 rotationAxisZ, Camera _Cam) {
 	try {
-		camera = _Cam;
-		translationMatrix = glm::translate(glm::mat4(), position);
-		rotationZ = glm::rotate(glm::mat4(), glm::radians(rotationAngle), rotationAxisZ);
-		scaleMatrix = glm::scale(glm::mat4(), scale);
-		model = translationMatrix * rotationZ * scaleMatrix;
-		projCalc = camera.proj * camera.view * model;
+		this->camera = _Cam;
+		this->translationMatrix = glm::translate(glm::mat4(), this->position);
+		this->rotationZ = glm::rotate(glm::mat4(), glm::radians(rotationAngle), rotationAxisZ);
+		this->scaleMatrix = glm::scale(glm::mat4(), this->scale);
+		this->model = this->translationMatrix * this->rotationZ * this->scaleMatrix;
+		this->projCalc = this->camera.proj * this->camera.view * this->model;
 	}
 	catch (...) {
 		Console_OutputLog("Sprite Failed Tick: " + name, LOGWARN);
@@ -100,13 +98,13 @@ void Sprite::Tick(float rotationAngle, glm::vec3 rotationAxisZ, Camera _Cam) {
 void Sprite::Render()
 {
 	try {
-		glUseProgram(program);
-		GLuint mvpLoc2 = glGetUniformLocation(program, "proj_calc");
-		glUniformMatrix4fv(mvpLoc2, 1, GL_FALSE, glm::value_ptr(projCalc));
+		glUseProgram(this->program);
+		GLuint mvpLoc2 = glGetUniformLocation(this->program, "proj_calc");
+		glUniformMatrix4fv(mvpLoc2, 1, GL_FALSE, glm::value_ptr(this->projCalc));
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glUniform1i(glGetUniformLocation(program, "tex"), 0);
-		glBindVertexArray(VAO);
+		glBindTexture(GL_TEXTURE_2D, this->texture);
+		glUniform1i(glGetUniformLocation(this->program, "tex"), 0);
+		glBindVertexArray(this->VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 		glUseProgram(0);

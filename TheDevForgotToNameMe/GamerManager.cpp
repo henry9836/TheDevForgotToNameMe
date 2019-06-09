@@ -22,10 +22,7 @@ void GameManager::CheckGeneralInput(GameManager& m_game)
 		if (m_Input.CheckKeyDown('1')) {
 			m_game.currentScreen = m_game.GAME;
 		}
-		if (m_Input.CheckKeyDown('2')) {
-			m_game.currentScreen = m_game.GAME;
-		}
-		if (m_Input.CheckKeyDown('3')){
+		if (m_Input.CheckKeyDown('2')){
 			m_game.leave = true;
 		}
 		break;
@@ -38,15 +35,15 @@ void GameManager::CheckGeneralInput(GameManager& m_game)
 				switch (spawnPos)
 				{
 				case 1: {
-					m_game.enemyList->push_back(new Enemy(new Model("Resources/Models/EnemyShell/Dog 1.obj", mCam, "Enemy", (rand() % 360) + 0, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(15.0f, 1.0f, (rand() % 30) - 15), glm::vec3(1.5f, 1.5f, 1.5f), "Resources/3DObject_Diffuse.vs", "Resources/3DObject_BlinnPhong.fs"), 0.0f));
+					m_game.enemyList->push_back(new Enemy(new Model("Resources/Models/EnemyShell/Dog 1.obj", mCam, "Enemy", float((rand() % 360) + 0), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(15.0f, 1.0f, (rand() % 30) - 15), glm::vec3(1.5f, 1.5f, 1.5f), "Resources/3DObject_Diffuse.vs", "Resources/3DObject_BlinnPhong.fs"), 0.0f));
 					break;
 				}
 				case 2: {
-					m_game.enemyList->push_back(new Enemy(new Model("Resources/Models/EnemyShell/Dog 1.obj", mCam, "Enemy", (rand() % 360) + 0, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3((rand() % 15) + 2, 1.0f, -15.0f), glm::vec3(1.5f, 1.5f, 1.5f), "Resources/3DObject_Diffuse.vs", "Resources/3DObject_BlinnPhong.fs"), 0.0f));
+					m_game.enemyList->push_back(new Enemy(new Model("Resources/Models/EnemyShell/Dog 1.obj", mCam, "Enemy", float((rand() % 360) + 0), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3((rand() % 15) + 2, 1.0f, -15.0f), glm::vec3(1.5f, 1.5f, 1.5f), "Resources/3DObject_Diffuse.vs", "Resources/3DObject_BlinnPhong.fs"), 0.0f));
 					break;
 				}
 				case 3: {
-					m_game.enemyList->push_back(new Enemy(new Model("Resources/Models/EnemyShell/Dog 1.obj", mCam, "Enemy", (rand() % 360) + 0, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3((rand() % 15) + 2, 1.0f, 15.0f), glm::vec3(1.5f, 1.5f, 1.5f), "Resources/3DObject_Diffuse.vs", "Resources/3DObject_BlinnPhong.fs"), 0.0f));
+					m_game.enemyList->push_back(new Enemy(new Model("Resources/Models/EnemyShell/Dog 1.obj", mCam, "Enemy", float((rand() % 360) + 0), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3((rand() % 15) + 2, 1.0f, 15.0f), glm::vec3(1.5f, 1.5f, 1.5f), "Resources/3DObject_Diffuse.vs", "Resources/3DObject_BlinnPhong.fs"), 0.0f));
 					break;
 				}
 				default:

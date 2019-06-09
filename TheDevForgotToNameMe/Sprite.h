@@ -18,6 +18,20 @@ public:
 
 	std::string name = "Untitled Sprite";
 
+	void Initalise(glm::vec3 _position, glm::vec3 _scale, std::string textureFilePath, std::string vShaderFilePath, std::string fShaderFilePath, GLuint Indices[], GLfloat Verts[], std::string _name);
+	void Tick(float rotationAngle, glm::vec3 rotationAxisZ, Camera _Cam);
+	void Render();
+	GLuint VAO = NULL;
+	GLuint VBO = NULL;
+	GLuint EBO = NULL;
+	GLuint texture = NULL;
+	//GLuint image = NULL;
+	GLuint program = NULL;
+private:
+	unsigned char* image;
+
+	
+
 	Camera camera;
 
 	glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -28,16 +42,4 @@ public:
 	glm::mat4 rotationZ;
 	glm::mat4 translationMatrix;
 	glm::mat4 scaleMatrix;
-
-	GLuint VAO = NULL;
-	GLuint VBO = NULL;
-	GLuint EBO = NULL;
-	GLuint texture = NULL;
-	GLuint image = NULL;
-	GLuint program = NULL;
-
-	void Initalise(glm::vec3 _position, glm::vec3 _scale, std::string textureFilePath, std::string vShaderFilePath, std::string fShaderFilePath, GLuint Indices[], GLfloat Verts[], std::string _name);
-	void Tick(float rotationAngle, glm::vec3 rotationAxisZ, Camera _Cam);
-	void Render();
-
 };

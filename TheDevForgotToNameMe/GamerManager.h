@@ -18,12 +18,12 @@ public:
 	std::vector<Enemy*>* enemyList;
 	Camera* mCam;
 
-	float score = 0;
+	int score = 0;
 	int wave = 1;
 	int waveSpawnAmount = 3;
 	int lives = 3;
 	int amountSpawned = 0;
-	float highscore = 0.0f;
+	int highscore = 0;
 	float enemyMoveSpeed = 0.5f;
 	bool waveSpawned = false;
 	bool gameover = false;

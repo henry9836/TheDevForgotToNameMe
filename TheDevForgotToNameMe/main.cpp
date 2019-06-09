@@ -43,18 +43,11 @@ TextLabel mainText;
 TextLabel mLivesText;
 TextLabel highscoreText;
 GameManager m_Game;
-ObjectManager babyObjManager;
-ObjectManager fireObjManager;
 ObjectManager objManager;
 LoadTexture textureLoader;
 
 //Sprite
-Sprite babySprite;
-Sprite fireSprite;
 Sprite backdropSprite;
-
-//Basic 3D
-Simple3DObject pyramidObject;
 
 //Models
 Model tankModel;
@@ -78,43 +71,12 @@ float r = 1.0;
 float b = 0.0;
 float g = 0.0;
 
-GLuint fireTexture = NULL;
-GLuint babyTexture = NULL;
-GLuint toasterTexture = NULL;
-GLuint backgroundTexture = NULL;
-
-GLuint firePro = NULL;
-GLuint toasterPro = NULL;
-GLuint babyPro = NULL;
-GLuint backgroundPro = NULL;
-
-GLuint fireVAO = NULL;
-GLuint fireVBO = NULL;
-GLuint fireEBO = NULL;
-GLuint toasterVAO = NULL;
-GLuint toasterVBO = NULL;
-GLuint toasterEBO = NULL;
-GLuint babyVAO = NULL;
-GLuint babyVBO = NULL;
-GLuint babyEBO = NULL;
-GLuint backVAO = NULL;
-GLuint backVBO = NULL;
-GLuint backEBO = NULL;
-
-
-glm::vec3 firePos = glm::vec3(0.1f, 0.1f, 0.0f);
-glm::mat4 fireTransMat = glm::translate(glm::mat4(), firePos);
 glm::vec3 rotZ = glm::vec3(0.0f, 0.0f, 1.0f);
 
 float rotationAngle = 0;
 float currentTime;
 float deltaTime;
 float pasttime;
-
-bool BackTrackPlaying = false;
-bool Babyisdying = false;
-
-glm::mat4 fireRot = glm::rotate(glm::mat4(), glm::radians(rotationAngle), rotZ);
 
 GLuint backIndices[] = {
 	0, 1, 2,
@@ -127,105 +89,6 @@ GLfloat backVerts[] = {
 	-1.0f, -1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 1.0f,		//bottom left	2
 	1.0f, -1.0f, 0.0f,	0.0f, 1.0f, 0.0f,	1.0f, 1.0f,		//bottom right	3
 };
-
-GLuint fireIndices[] = {
-	0, 1, 2,
-	2, 3, 0,
-};
-
-GLfloat fireVerts[] = {
-	0.5f, 0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 0.0f,		//top right		0
-	-0.5f, 0.5f, 0.0f,	1.0f, 0.0f, 1.0f,	0.0f, 0.0f,		//top left		1
-	-0.5f, -0.5f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 1.0f,		//bottom left	2
-	0.5f, -0.5f, 0.0f,	0.0f, 1.0f, 0.0f,	1.0f, 1.0f,		//bottom right	3
-};
-
-GLuint babyIndices[] = {
-	0, 1, 2,
-	2, 3, 0,
-};
-
-GLfloat babyVerts[] = {
-	0.85f, 0.75f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 0.0f,		//top right		0
-	-0.85f, 0.75f, 0.0f,	1.0f, 0.0f, 1.0f,	0.0f, 0.0f,		//top left		1
-	-0.85f, -0.75f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 1.0f,		//bottom left	2
-	0.85f, -0.75f, 0.0f,	0.0f, 1.0f, 0.0f,	1.0f, 1.0f,		//bottom right	3
-};
-
-GLuint hexIndices[] = {
-	0, 1, 2,
-	2, 3, 4,
-	4, 5, 0,
-	0, 2, 4,
-};
-
-GLfloat hexVerts[] = {
-	0.7f, -0.9f, 0.0f,	1.0f, 0.0f, 0.0f, //bottom right	0
-	0.85f, -0.7f, 0.0f,	1.0f, 0.0f, 1.0f, //right			1
-	0.7f, -0.5f, 0.0f,	0.0f, 0.0f, 1.0f, //top right		2
-	0.5f, -0.5f, 0.0f,	0.0f, 1.0f, 0.0f, //top left		3
-	0.35f, -0.7f, 0.0f,	1.0f, 1.0f, 0.0f, //left			4
-	0.5f, -0.9f, 0.0f,	1.0f, 0.4f, 0.0f, //bottom left		5
-};
-
-GLuint quadIndices[] = {
-	0, 1, 2,
-	2, 3, 0,
-};
-
-GLfloat quadVerts[] = {
-	0.5f, 0.5f, 0.0f,		1.0f, 0.0f, 0.0f,	1.0f, 0.0f,		//top right		0
-	-0.5f, 0.5f, 0.0f,	1.0f, 0.0f, 1.0f,	0.0f, 0.0f,		//top left		1
-	-0.5f, -0.5f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 1.0f,		//bottom left	2
-	0.5f, -0.5f, 0.0f,	0.0f, 1.0f, 0.0f,	1.0f, 1.0f,		//bottom right	3
-};
-
-GLfloat pyVerts[] = {
-	//Positions            //Normals          //Tex Cords
-	-1.0f, 0.0f, -1.0f,	 0.0f, 0.0f, 1.0f,	 0.0f, 0.0f, //0 bl
-	-1.0f, 0.0f, 1.0f,	 0.0f, 0.0f, 1.0f,	 0.0f, 1.0f, //1 br
-	1.0f, 0.0f, 1.0f,	 0.0f, 0.0f, 1.0f,	 1.0f, 1.0f, //2 tr
-	1.0f, 0.0f, -1.0f,	 0.0f, 0.0f, 1.0f,	 1.0f, 0.0f, //3 tl
-	0.0f, 1.0f, 0.0f,	 0.0f, 0.0f, 1.0f,	 0.5f, 0.5f, //4 top
-};
-
-GLuint pyIndices[] = {
-
-	0, 2, 3,
-	1, 3, 0,
-
-	0, 1, 4,
-	1, 2, 4,
-	2, 3, 4,
-	3, 0, 4,
-	
-};
-
-void checkCollision(glm::vec4 box1, glm::vec4 box2)
-{
-	if ((box1.x > box2.x) && (box1.y < box2.x))
-	{
-		if ((box1.z < box2.z) && (box1.w > box2.z))
-		{
-			fireObjManager.ONTARGET = true;
-		}
-		if ((box1.z < box2.w) && (box1.w > box2.w))
-		{
-			fireObjManager.ONTARGET = true;
-		}
-	}
-	if ((box1.x > box2.y) && (box1.y < box2.y))
-	{
-		if ((box1.z < box2.z) && (box1.w > box2.z))
-		{
-			fireObjManager.ONTARGET = true;
-		}
-		if ((box1.z < box2.w) && (box1.w > box2.w))
-		{
-			fireObjManager.ONTARGET = true;
-		}
-	}
-}
 
 void Render() {
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -242,8 +105,6 @@ void Render() {
 
 	glm::vec3 rotationAxisZ = glm::vec3(1.0f, 0.0f, 0.0f);
 
-	fireSprite.Tick(rotationAngle, rotationAxisZ, mCam);
-	babySprite.Tick(rotationAngle, rotationAxisZ, mCam);
 	backdropSprite.Tick(rotationAngle, rotationAxisZ, mCam);
 
 	cubeMap.Update();
@@ -305,6 +166,8 @@ void Render() {
 		{
 			menuSprites.at(i)->Render();
 		}
+
+		backdropSprite.Render();
 
 		for (size_t i = 0; i < mainModels.size(); i++)
 		{
@@ -457,12 +320,6 @@ void Render() {
 		}
 		enemyObjects.erase(enemyObjects.begin(), enemyObjects.end());
 		enemyObjects.clear();
-		// Render Sprites
-
-		for (size_t i = 0; i < menuSprites.size(); i++)
-		{
-			menuSprites.at(i)->Render();
-		}
 		
 		//Render Text
 
@@ -481,6 +338,9 @@ void Update() {
 	glutPostRedisplay();
 	mAudio.Tick();
 	m_Game.CheckGeneralInput(m_Game);
+	if (m_Game.leave) {
+		glutLeaveMainLoop();
+	}
 }
 
 int main(int argc, char** argv) {
@@ -538,38 +398,6 @@ int main(int argc, char** argv) {
 		cubeMap.Initalise(&mCam, "Resources/CubeMap/Witcher/", "Witcher Terrain Cube Map");
 
 		/*
-			===================
-			[ BASIC 3D SHAPES ]
-			===================
-		*/
-
-		pyramidObject.Initalise(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), "Resources/fire.png", "Resources/3DObject_Diffuse.vs", "Resources/3DObject_BlinnPhong.fs", pyIndices, pyVerts, "Basic Pyramid", sizeof(pyIndices), false);
-
-		simple3DObjects.push_back(&pyramidObject);
-
-		glGenVertexArrays(1, &pyramidObject.VAO);
-		glBindVertexArray(pyramidObject.VAO);
-
-		glGenBuffers(1, &pyramidObject.EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pyramidObject.EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(pyIndices), pyIndices, GL_STATIC_DRAW);
-
-		glGenBuffers(1, &pyramidObject.VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, pyramidObject.VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(pyVerts), pyVerts, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (8 * (sizeof(GLfloat))), (GLvoid*)0);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, (8 * (sizeof(GLfloat))), (GLvoid*)(3 * (sizeof(GLfloat))));
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, (8 * (sizeof(GLfloat))), (GLvoid*)(6 * (sizeof(GLfloat))));
-		glEnableVertexAttribArray(2);
-		glActiveTexture(GL_TEXTURE0);
-		pyramidObject.texture = textureLoader.loadTexture("Resources/abc.jpg");
-		glBindTexture(GL_TEXTURE_2D, pyramidObject.texture);
-		glUniform1i(glGetUniformLocation(pyramidObject.program, "tex"), 0);
-
-		/*
 			===========
 			[ SPRITES ]
 		    ===========
@@ -577,13 +405,13 @@ int main(int argc, char** argv) {
 
 		/* BACKGROUND */
 
-		backdropSprite.Initalise(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.5f, 1.5f, 1.5f), "Resources/back.png", "Resources/Reflect.vs", "Resources/Reflect.fs", backIndices, backVerts, "Backround Layer");
+		backdropSprite.Initalise(glm::vec3(1.0f, 1.0f, 5.0f), glm::vec3(2.0f, 2.0f, 2.0f), "Resources/back.png", "Resources/back.vs", "Resources/back.fs", backIndices, backVerts, "Backround Layer");
 
 		//Assign to scenes
 
-		gameSprites.push_back(&backdropSprite);
 		menuSprites.push_back(&backdropSprite);
 
+		
 		glGenVertexArrays(1, &backdropSprite.VAO);
 		glBindVertexArray(backdropSprite.VAO);
 
@@ -594,98 +422,6 @@ int main(int argc, char** argv) {
 		glGenBuffers(1, &backdropSprite.VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, backdropSprite.VBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(backVerts), backVerts, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(
-			0,
-			3,
-			GL_FLOAT,
-			GL_FALSE,
-			8 * sizeof(GLfloat),
-			(GLvoid*)0);
-		glEnableVertexAttribArray(0);
-
-		glVertexAttribPointer(
-			1,
-			3,
-			GL_FLOAT,
-			GL_FALSE,
-			8 * sizeof(GLfloat),
-			(GLvoid*)(3 * sizeof(GLfloat)));
-		glEnableVertexAttribArray(1);
-
-		glVertexAttribPointer(
-			2,
-			2,
-			GL_FLOAT,
-			GL_FALSE,
-			8 * sizeof(GLfloat),
-			(GLvoid*)(6 * sizeof(GLfloat)));
-		glEnableVertexAttribArray(2);
-
-		/* FIRE */
-
-		fireSprite.Initalise(glm::vec3(-1.5f, 0.0f, 0.0f), glm::vec3(1.5f, 1.5f, 1.5f), "Resources/fire.png", "Resources/fire.vs", "Resources/fire.fs", fireIndices, fireVerts, "fireSprite");
-		
-		//Assign to scenes
-
-		gameSprites.push_back(&fireSprite);
-		
-		glGenVertexArrays(1, &fireSprite.VAO);
-		glBindVertexArray(fireSprite.VAO);
-
-		glGenBuffers(1, &fireSprite.EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fireSprite.EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(fireIndices), fireIndices, GL_STATIC_DRAW);
-
-		glGenBuffers(1, &fireSprite.VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, fireSprite.VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(fireVerts), fireVerts, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(
-			0,
-			3,
-			GL_FLOAT,
-			GL_FALSE,
-			8 * sizeof(GLfloat),
-			(GLvoid*)0);
-		glEnableVertexAttribArray(0);
-
-		glVertexAttribPointer(
-			1,
-			3,
-			GL_FLOAT,
-			GL_FALSE,
-			8 * sizeof(GLfloat),
-			(GLvoid*)(3 * sizeof(GLfloat)));
-		glEnableVertexAttribArray(1);
-
-		glVertexAttribPointer(
-			2,
-			2,
-			GL_FLOAT,
-			GL_FALSE,
-			8 * sizeof(GLfloat),
-			(GLvoid*)(6 * sizeof(GLfloat)));
-		glEnableVertexAttribArray(2);
-
-		/* BABY */
-
-		babySprite.Initalise(glm::vec3(1.5f, 0.0f, 0.0f), glm::vec3(1.5f, 1.5f, 1.5f), "Resources/baby.png", "Resources/baby.vs", "Resources/baby.fs", babyIndices, babyVerts, "babySprite");
-
-		//Assign to scenes
-
-		gameSprites.push_back(&babySprite);
-
-		glGenVertexArrays(1, &babySprite.VAO);
-		glBindVertexArray(babySprite.VAO);
-
-		glGenBuffers(1, &babySprite.EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, babySprite.EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(babyIndices), babyIndices, GL_STATIC_DRAW);
-
-		glGenBuffers(1, &babySprite.VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, babySprite.VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(babyVerts), babyVerts, GL_STATIC_DRAW);
 
 		glVertexAttribPointer(
 			0,
@@ -727,7 +463,7 @@ int main(int argc, char** argv) {
 		mLivesText = TextLabel(mScreen, "LIVES: 3", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 100.0f));
 		mWaveNum = TextLabel(mScreen, "WAVE: 1", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 150.0f));
 		gameOverText = TextLabel(mScreen, "GAMEOVER\nSCORE: UNKNOWN\nPress c to continue", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 200.0f));
-		mainText = TextLabel(mScreen, "The Dev Forgot To Name Me\n1. Play\n2. How To Play\n3. Quit", "Resources/Arial.ttf", glm::vec2(-300.0f, 200.0f));
+		mainText = TextLabel(mScreen, "The Dev Forgot To Name Me\n1. Play\n2. Quit", "Resources/Arial.ttf", glm::vec2(-300.0f, 200.0f));
 		highscoreText = TextLabel(mScreen, "Current Highscore: " + std::to_string(m_Game.highscore) , "Resources/Arial.ttf", glm::vec2(-300.0f, -200.0f));
 		mScore.SetScale(static_cast<GLfloat>(0.65));
 		mLivesText.SetScale(static_cast<GLfloat>(0.65));
@@ -754,7 +490,7 @@ int main(int argc, char** argv) {
 		glutMainLoop();
 	}
 
-	catch (int i) {
+	catch (...) {
 		Console_OutputLog("Something went wrong and the application cannot recover\nError Code: Unknown", LOGFATAL);
 		system("pause");
 	}
