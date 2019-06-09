@@ -50,7 +50,7 @@ void Console_Clear() { //Clear console window
 	Console_gotoXY(0, 0);
 }
 
-void Console_FontSize(int x, int y) {
+void Console_FontSize(int x, int y) { //Change Console Font Size to XY
 	HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
 	PCONSOLE_FONT_INFOEX lpConsoleCurrentFontEx = new CONSOLE_FONT_INFOEX();
 	lpConsoleCurrentFontEx->cbSize = sizeof(CONSOLE_FONT_INFOEX);
@@ -102,17 +102,17 @@ RANGE: 0-254
 
 */
 
-void Console_ColoredTEXT(string m_word, int m_color) {
+void Console_ColoredTEXT(string m_word, int m_color) { //Output Colored Text
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), m_color);
 	cout << m_word;
 }
 
-void Console_ColoredTEXTChar(char m_word, int m_color) {
+void Console_ColoredTEXTChar(char m_word, int m_color) { //Output Colored Text
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), m_color);
 	cout << m_word;
 }
 
-void Console_RainbowWrite(std::string m_word) {
+void Console_RainbowWrite(std::string m_word) { //Output Random Colored Text
 	srand((unsigned int)time(NULL));
 	
 	for (size_t i = 0; i < m_word.length(); i++)
@@ -121,7 +121,7 @@ void Console_RainbowWrite(std::string m_word) {
 	}
 }
 
-void Console_OutputLog(std::string log, int type) {
+void Console_OutputLog(std::string log, int type) { //Output Log Text With Warning Level
 	Console_ColoredTEXT("[", DEFAULT);
 	switch (type)
 	{

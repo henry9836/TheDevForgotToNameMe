@@ -95,7 +95,7 @@ void Sprite::Tick(float rotationAngle, glm::vec3 rotationAxisZ, Camera _Cam) {
 	}
 }
 
-void Sprite::Render()
+void Sprite::Render(Camera* cam, CubeMap* _skyBox)
 {
 	try {
 		glUseProgram(this->program);
@@ -104,6 +104,16 @@ void Sprite::Render()
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, this->texture);
 		glUniform1i(glGetUniformLocation(this->program, "tex"), 0);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, _skyBox->texID);
+		glUniform1i(glGetUniformLocation(program, "skybox"), 1);
+
+		GLuint mvpLoc3 = glGetUniformLocation(this->program, "model");
+		glUniformMatrix4fv(mvpLoc3, 1, GL_FALSE, glm::value_ptr(this->model));
+		
+		glUniform3fv(glGetUniformLocation(this->program, "camPos"), 1, glm::value_ptr(cam->camPos));
+
 		glBindVertexArray(this->VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);

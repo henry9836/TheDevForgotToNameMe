@@ -166,10 +166,8 @@ void Render() {
 
 		for (size_t i = 0; i < menuSprites.size(); i++)
 		{
-			menuSprites.at(i)->Render();
+			menuSprites.at(i)->Render(&mCam, &cubeMap);
 		}
-
-		backdropSprite.Render();
 
 		for (size_t i = 0; i < mainModels.size(); i++)
 		{
@@ -275,7 +273,7 @@ void Render() {
 		for (size_t i = 0; i < enemyObjects.size() - diff; i++)
 		{
 			if (!enemyObjects.empty()) {
-				if (enemyObjects.size() >= i) {
+				if (enemyObjects.size()-1 >= i) {
 					if (!enemyObjects.at(i)->amAllowedAlive) { //Is the enemy object marked for deconstruction
 						Console_OutputLog("Killing Instance Of Enemy", LOGINFO);
 						diff++;
@@ -433,7 +431,7 @@ int main(int argc, char** argv) {
 		    ===========
 		*/
 
-		backdropSprite.Initalise(glm::vec3(1.0f, 1.0f, 5.0f), glm::vec3(2.0f, 2.0f, 2.0f), "Resources/back.png", "Resources/back.vs", "Resources/back.fs", backIndices, backVerts, "Backround Layer");
+		backdropSprite.Initalise(glm::vec3(1.0f, 1.0f, 5.0f), glm::vec3(2.0f, 2.0f, 2.0f), "Resources/back.png", "Resources/Reflect.vs", "Resources/Reflect.fs", backIndices, backVerts, "Backround Layer");
 
 		menuSprites.push_back(&backdropSprite); //Assign to scene
 
@@ -489,18 +487,32 @@ int main(int argc, char** argv) {
 			[ TEXT ]
 			========
 		*/
+		mScore = TextLabel(mScreen, "SCORE: 0", "Resources/DIN1451.ttf", glm::vec2(-850.0f, 400.0f));
+		mLivesText = TextLabel(mScreen, "LIVES: 3", "Resources/DIN1451.ttf", glm::vec2(-850.0f, 450.0f));
+		mWaveNum = TextLabel(mScreen, "WAVE: 1", "Resources/DIN1451.ttf", glm::vec2(-850.0f, 350.0f));
+		gameOverText = TextLabel(mScreen, "GAMEOVER\nSCORE: UNKNOWN\nPress c to continue", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 450.0f));
+		mainText = TextLabel(mScreen, "The Dev Forgot To Name Me\n1. Play\n2. Quit", "Resources/Arial.ttf", glm::vec2(-850.0f, 450.0f));
+		highscoreText = TextLabel(mScreen, "Current Highscore: " + std::to_string(m_Game.highscore) , "Resources/Arial.ttf", glm::vec2(-850.0f, -450.0f));
+		mScore.SetScale(static_cast<GLfloat>(1.0));
+		mLivesText.SetScale(static_cast<GLfloat>(1.0));
+		mWaveNum.SetScale(static_cast<GLfloat>(1.0));
+		gameOverText.SetScale(static_cast<GLfloat>(1.0));
+		mainText.SetScale(static_cast<GLfloat>(1.0));
+		highscoreText.SetScale(static_cast<GLfloat>(1.0));
+		/*
 		mScore = TextLabel(mScreen, "SCORE: 0", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 200.0f));
 		mLivesText = TextLabel(mScreen, "LIVES: 3", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 100.0f));
 		mWaveNum = TextLabel(mScreen, "WAVE: 1", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 150.0f));
 		gameOverText = TextLabel(mScreen, "GAMEOVER\nSCORE: UNKNOWN\nPress c to continue", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 200.0f));
 		mainText = TextLabel(mScreen, "The Dev Forgot To Name Me\n1. Play\n2. Quit", "Resources/Arial.ttf", glm::vec2(-300.0f, 200.0f));
-		highscoreText = TextLabel(mScreen, "Current Highscore: " + std::to_string(m_Game.highscore) , "Resources/Arial.ttf", glm::vec2(-300.0f, -200.0f));
+		highscoreText = TextLabel(mScreen, "Current Highscore: " + std::to_string(m_Game.highscore), "Resources/Arial.ttf", glm::vec2(-300.0f, -200.0f));
 		mScore.SetScale(static_cast<GLfloat>(0.65));
 		mLivesText.SetScale(static_cast<GLfloat>(0.65));
 		mWaveNum.SetScale(static_cast<GLfloat>(0.65));
 		gameOverText.SetScale(static_cast<GLfloat>(0.75));
 		mainText.SetScale(static_cast<GLfloat>(0.5));
 		highscoreText.SetScale(static_cast<GLfloat>(0.5));
+		*/
 
 		//Addition Items To Set Up
 

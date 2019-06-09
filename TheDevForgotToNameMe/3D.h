@@ -15,9 +15,11 @@
 #include "TextureLoader.h"
 #include "Model.h"
 
+//CubeMaps
 class CubeMap {
 public:
 
+	//Create the Cubemap Object
 	void Initalise(Camera* _cam, std::string _pathToCubeMap, std::string _name) {
 
 		Console_OutputLog("Initalising CubeMap: " + _name, LOGINFO);
@@ -25,7 +27,7 @@ public:
 		this->camera = _cam;
 		this->name = _name;
 
-		//vertcies
+		//Create Vertcies and Indices
 
 		GLfloat CubeMapVertices[24] = {};
 
@@ -109,6 +111,8 @@ public:
 			CubeMapIndices[i] = temp[i];
 		}
 
+		//Bind and Generate Info
+
 		glGenVertexArrays(1, &this->VAO);
 		glBindVertexArray(this->VAO);
 
@@ -126,7 +130,7 @@ public:
 		glGenTextures(1, &this->texture);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, this->texture);
 
-		//faces
+		//Face Image Names
 
 		this->faces.push_back("right.jpg");
 		this->faces.push_back("left.jpg");
@@ -135,11 +139,14 @@ public:
 		this->faces.push_back("back.jpg");
 		this->faces.push_back("front.jpg");
 
+		//Create program
+
 		this->program = ShaderLoader::CreateProgram("Resources/CubeMap.vs", "Resources/CubeMap.fs");
 
 		int width, height;
 		unsigned char* image;
 
+		//Assign the faces onto sides
 		for (GLuint i = 0; i < 6; i++)
 		{
 			std::string tmpPath = _pathToCubeMap;
@@ -160,15 +167,17 @@ public:
 
 		Console_OutputLog("CubeMap: " + _name + " Initalised", LOGINFO);
 	}
+
+	//Update rotation, scale and position of cube map so it renders correctly
 	void Update()
 	{
 		this->model = glm::scale(glm::mat4(), glm::vec3(2000.0f, 2000.0f, 2000.0f));
 		this->projCalc = this->camera->getMVP(this->position, this->scale, this->rotationZ) * this->model;
 	}
 
+	//Render the Cubemap
 	void Render()
 	{
-
 		glUseProgram(this->program);
 		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
@@ -204,6 +213,7 @@ private:
 	GLuint program = NULL;
 };
 
+//Simple 3D Objects
 class Simple3DObject {
 public:
 	std::string name = "Untitled Basic 3D";
@@ -236,6 +246,7 @@ public:
 
 };
 
+//Bullets
 class Bullet {
 public:
 	Bullet(Model* mObject, float deltaTime);
@@ -249,6 +260,7 @@ public:
 	bool isOnPlayerTeam = false;
 };
 
+//Enemies
 class Enemy {
 public:
 	Enemy(Model* mObject, float deltaTime);

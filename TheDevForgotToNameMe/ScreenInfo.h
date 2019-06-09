@@ -8,6 +8,8 @@
 class ScreenInfo
 {
 public:
-	GLfloat SCR_WIDTH = 700;
-	GLfloat SCR_HEIGHT = 500;
+	//GLfloat SCR_WIDTH = 700;
+	//GLfloat SCR_HEIGHT = 500;
+	GLfloat SCR_WIDTH = 1920;
+	GLfloat SCR_HEIGHT = 1080;
 };
