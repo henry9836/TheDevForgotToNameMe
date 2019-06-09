@@ -18,61 +18,136 @@ void ObjectManager::Reset()
 	objPos = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
-MovementPacket ObjectManager::Move(OBJECTTYPE objType, float speed, AudioSystem& audio, GLfloat deltaTime, glm::vec2 maxWorldSize, glm::vec3 currentPos, float currentRotation) {
+MovementPacket ObjectManager::Move(OBJECTTYPE objType, float speed, AudioSystem& audio, GLfloat deltaTime, glm::vec4 maxWorldSize, glm::vec3 currentPos, float currentRotation, glm::vec3 Target) {
 	
 	MovementPacket currentState;
+
 	
+
 	currentState.newPosition = currentPos;
 	currentState.newRotation = currentRotation;
+	currentState.fire = false;
 
 	if (objType == PLAYER) {
+		//Console_OutputLog("Current Pos: X[" + std::to_string(currentPos.x) + "] Y[" + std::to_string(currentPos.y) + "]" + "] Z[" + std::to_string(currentPos.z) + "]", LOGINFO);
+		//Movement
 		if (m_input.CheckKeyDown('w'))
 		{
-			currentState.newPosition.x += speed * deltaTime;
 			currentState.newRotation = 270.0;
+			if (currentState.newPosition.x < maxWorldSize.z) {
+				currentState.newPosition.x += speed * deltaTime;
+			}
 		}
 		if (m_input.CheckKeyDown('s'))
 		{
-			currentState.newPosition.x -= speed * deltaTime;
 			currentState.newRotation = 90.0f;
+			if (currentState.newPosition.x > maxWorldSize.y) {
+				currentState.newPosition.x -= speed * deltaTime;
+			}
 		}
 		if (m_input.CheckKeyDown('a'))
 		{
-			currentState.newPosition.z -= speed * deltaTime;
 			currentState.newRotation = 0.0f;
+			if (currentState.newPosition.z > maxWorldSize.x) {
+				currentState.newPosition.z -= speed * deltaTime;
+			}
 		}
 		if (m_input.CheckKeyDown('d'))
 		{
-			currentState.newPosition.z += speed * deltaTime;
 			currentState.newRotation = 180.0f;
+			if (currentState.newPosition.z < maxWorldSize.w) {
+				currentState.newPosition.z += speed * deltaTime;
+			}
 		}
-		/* OLD MOVEMENT */
-		/*
-		if (m_input.CheckKeyDown('w'))
-		{
-			currentState.newPosition.z -= speed * deltaTime;
+		if (m_input.CheckKeyDown('w') && m_input.CheckKeyDown('a')) {
+			currentState.newRotation = 315.0f;
 		}
-		if (m_input.CheckKeyDown('s'))
-		{
-			currentState.newPosition.z += speed * deltaTime;
+		else if (m_input.CheckKeyDown('w') && m_input.CheckKeyDown('d')) {
+			currentState.newRotation = 225.0f;
 		}
-		if (m_input.CheckKeyDown('a'))
-		{
-			currentState.newPosition.x -= speed * deltaTime;
+		if (m_input.CheckKeyDown('s') && m_input.CheckKeyDown('d')) {
+			currentState.newRotation = 135.0f;
 		}
-		if (m_input.CheckKeyDown('d'))
-		{
-			currentState.newPosition.x += speed * deltaTime;
+		else if (m_input.CheckKeyDown('s') && m_input.CheckKeyDown('a')) {
+			currentState.newRotation = 45.0f;
 		}
-		if (m_input.CheckKeyDown('q'))
+
+		//Basic rotation
+		/*if (m_input.CheckKeyDown('q'))
 		{
-			currentState.newRotation += (speed * 5) * deltaTime;
+			currentState.newRotation += (speed * 30) * deltaTime;
 		}
 		if (m_input.CheckKeyDown('e'))
 		{
-			currentState.newRotation -= (speed * 5) * deltaTime;
+			currentState.newRotation -= (speed * 30) * deltaTime;
+		}*/
+		
+		//Shooting
+		currentreload += deltaTime;
+
+		if (m_input.CheckKeyDown('f') && currentreload > reloadTime) {
+			currentreload = 0.0f;
+			audio.Play(audio.SHOOT);
+			currentState.fire = true;
 		}
-		*/
+	}
+
+	else if (objType == BULLET) {
+
+		currentRotation += 180.0f;
+
+		if (currentRotation == 270.0) // w
+		{
+			currentState.newPosition.x += speed * deltaTime;
+		}
+		if (currentRotation == 90.0f) //s
+		{
+			currentState.newPosition.x -= speed * deltaTime;
+		}
+		if (currentRotation == 0.0f) //a
+		{
+			currentState.newPosition.z -= speed * deltaTime;
+		}
+		if (currentRotation == 180.0f) //d
+		{
+			currentState.newPosition.z += speed * deltaTime;
+		}
+		if (currentRotation == 315.0f) { //w a
+			currentState.newPosition.x += speed * deltaTime;
+			currentState.newPosition.z -= speed * deltaTime;
+		}
+		if (currentRotation == 225.0f) { //w d
+			currentState.newPosition.x += speed * deltaTime;
+			currentState.newPosition.z += speed * deltaTime;
+		}
+		if (currentRotation == 135.0f) { //s d
+			currentState.newPosition.x -= speed * deltaTime;
+			currentState.newPosition.z += speed * deltaTime;
+		}
+		if (currentRotation == 45.0f) { //s a
+			currentState.newPosition.x -= speed * deltaTime;
+			currentState.newPosition.z -= speed * deltaTime;
+		}
+	}
+
+	else if (objType == ENEMY) {
+		currentState.newPosition = currentPos;
+
+		if (currentPos.x > Target.x) {
+			currentState.newPosition.x -= speed * deltaTime;
+		}
+		else if (currentPos.x < Target.x) {
+			currentState.newPosition.x += speed * deltaTime;
+		}
+
+		if (currentPos.z > Target.z) {
+			currentState.newPosition.z -= speed * deltaTime;
+		}
+		else if (currentPos.z < Target.z) {
+			currentState.newPosition.z += speed * deltaTime;
+		}
+
+		currentState.newRotation += 3.0f;
 	}
 	return currentState;
 }

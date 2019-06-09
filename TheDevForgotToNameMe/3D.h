@@ -13,40 +13,14 @@
 #include "ShaderLoader.h"
 #include "ConsoleController.h"
 #include "TextureLoader.h"
-
-class Simple3DObject {
-public:
-	std::string name = "Untitled Basic 3D";
-
-	glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 scale = glm::vec3(10.0f, 10.0f, 10.0f);
-
-	GLuint VAO = NULL;
-	GLuint VBO = NULL;
-	GLuint EBO = NULL;
-	GLuint texture = NULL;
-	GLuint image = NULL;
-	GLuint program = NULL;
-
-	glm::mat4 model;
-	glm::mat4 projCalc;
-	glm::mat4 rotationZ;
-	glm::mat4 translationMatrix;
-	glm::mat4 scaleMatrix;
-
-	int m_size = 0;
-
-	void Initalise(glm::vec3 _position, glm::vec3 _scale, std::string textureFilePath, std::string vShaderFilePath, std::string fShaderFilePath, GLuint Indices[], GLfloat Verts[], std::string _name, int _size);
-	void Render(Camera cam);
-
-};
+#include "Model.h"
 
 class CubeMap {
 public:
 
 	void Initalise(Camera* _cam, std::string _pathToCubeMap, std::string _name) {
 
-		Console_OutputLog("Initalising CubeMap: " + _name,LOGINFO);
+		Console_OutputLog("Initalising CubeMap: " + _name, LOGINFO);
 
 		this->camera = _cam;
 		this->name = _name;
@@ -180,8 +154,9 @@ public:
 			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 			SOIL_free_image_data(image);
 		}
-		
+
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+		this->texID = this->texture;
 
 		Console_OutputLog("CubeMap: " + _name + " Initalised", LOGINFO);
 	}
@@ -208,7 +183,7 @@ public:
 		glUseProgram(0);
 	}
 
-
+	GLuint texID = NULL;
 
 private:
 
@@ -227,4 +202,59 @@ private:
 	GLuint texture = NULL;
 	GLuint image = NULL;
 	GLuint program = NULL;
+};
+
+class Simple3DObject {
+public:
+	std::string name = "Untitled Basic 3D";
+
+	glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 scale = glm::vec3(10.0f, 10.0f, 10.0f);
+	glm::vec3 rotationAxisZ;
+
+	bool reflective = false;
+
+	GLuint VAO = NULL;
+	GLuint VBO = NULL;
+	GLuint EBO = NULL;
+	GLuint texture = NULL;
+	GLuint image = NULL;
+	GLuint program = NULL;
+
+	float rotationAngle;
+
+	glm::mat4 model;
+	glm::mat4 projCalc;
+	glm::mat4 rotationZ;
+	glm::mat4 translationMatrix;
+	glm::mat4 scaleMatrix;
+
+	int m_size = 0;
+
+	void Initalise(glm::vec3 _position, glm::vec3 _scale, std::string textureFilePath, std::string vShaderFilePath, std::string fShaderFilePath, GLuint Indices[], GLfloat Verts[], std::string _name, int _size, bool _reflective);
+	void Render(Camera* cam, CubeMap _skyBox);
+
+};
+
+class Bullet {
+public:
+	Bullet(Model* mObject, float deltaTime);
+	~Bullet();
+	void Tick(float deltaTime);
+	bool amAllowedAlive();
+	Model* object;
+	float lifeTime = 5.0f;
+	float time = 0.0f;
+	float deadLifeTime = 1000.0f;
+	bool isOnPlayerTeam = false;
+};
+
+class Enemy {
+public:
+	Enemy(Model* mObject, float deltaTime);
+	~Enemy();
+	void Tick(float deltaTime);
+	bool amAllowedAlive = true;
+	Model* object;
+	float moveSpeed = 5.0f;
 };

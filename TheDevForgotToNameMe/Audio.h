@@ -16,7 +16,10 @@ public:
 		SPEECH,
 		WON,
 		LOST,
-		BABYDIE
+		BABYDIE,
+		SHOOT,
+		HIT,
+		AMBIENT
 	};
 
 	FMOD::System* audioSystem;
@@ -25,4 +28,7 @@ public:
 	FMOD::Sound* speechTrack;
 	FMOD::Sound* wonTrack;
 	FMOD::Sound* lostTrack;
+	FMOD::Sound* shoot;
+	FMOD::Sound* hit;
+	FMOD::Sound* ambient;
 };

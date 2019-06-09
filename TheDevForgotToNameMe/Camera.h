@@ -9,12 +9,22 @@
 class Camera
 {
 public:
+	enum MODE {
+		ORBIT,
+		FOLLOW,
+		FOLLOW_ORBIT,
+		FOLLOW_STATIC,
+		ORTH,
+		PRESPECTIVE,
+		PRESET1
+	};
 	void initializeCamera();
 	void Tick(ScreenInfo m_Screen, float deltaTime);
+	void SwitchMode(MODE _mode, glm::vec3 _target, glm::vec3 _camPos, glm::vec3 _lookDirFromFollow, GLfloat _radius, GLfloat _height);
 
 	glm::mat4 getMVP(glm::vec3 postion, glm::vec3 scale, glm::mat4 rotationZ);
 
-	glm::vec4 camStartPos = glm::vec4(-10, 10, 0, 1);;
+	glm::vec4 camStartPos = glm::vec4(-5, 3, 0, 1);
 	glm::vec3 camPos;
 	glm::vec3 camLookDir;
 	glm::vec3 camUpDir;
@@ -34,7 +44,7 @@ public:
 	float FOV = 90.0f;
 	float timeElapsed = 0.0f;
 
-	GLfloat radius = 5.0f;
+	GLfloat radius = 3.0f;
 	GLfloat height = 3.0f;
 	glm::vec3 lookDirFromFollow = glm::vec3(0.0f, 0.0f, 0.0f);
 
@@ -42,4 +52,7 @@ public:
 	bool orbitCam = false;
 	bool followCam = true;
 	bool orthoMode = false;
+
+	int activeMode = -1;
+
 };

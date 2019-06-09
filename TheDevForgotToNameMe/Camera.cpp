@@ -18,9 +18,8 @@ void Camera::Tick(ScreenInfo m_Screen, float deltaTime)
 	if (orbitCam) {
 		timeElapsed += deltaTime;
 		camPos.x = sin(timeElapsed) * radius;
-		camPos.y = 1.5f;
 		camPos.z = cos(timeElapsed) * radius;
-		camTar = glm::vec3(0.0f, 0.0f, 0.0f);
+		//camTar = glm::vec3(0.0f, 0.0f, 0.0f);
 		if (followCam) {
 			camTar = glm::vec3(camFollowTar + lookDirFromFollow);
 			if (!staticCam) {
@@ -61,6 +60,113 @@ void Camera::Tick(ScreenInfo m_Screen, float deltaTime)
 		}
 	}
 
+}
+
+void Camera::SwitchMode(MODE _mode, glm::vec3 _target, glm::vec3 _camPos, glm::vec3 _lookDirFromFollow, GLfloat _radius, GLfloat _height)
+{
+
+	switch (_mode)
+	{
+	case Camera::ORBIT:
+	{
+		if (_mode != activeMode) {
+			Console_OutputLog("Switching Camera Mode To Orbit", LOGINFO);
+		}
+		this->staticCam = true;
+		this->orbitCam = true;
+		this->followCam = false;
+		this->radius = _radius;
+		this->height = _height;
+		this->camPos = _camPos;
+		this->camTar = _target;
+		this->camFollowTar = _target;
+		this->lookDirFromFollow = _lookDirFromFollow;
+		this->activeMode = _mode;
+		break;
+	}
+	case Camera::FOLLOW:
+	{
+		if (_mode != activeMode) {
+			Console_OutputLog("Switching Camera Mode To Follow", LOGINFO);
+		}
+		this->staticCam = false;
+		this->orbitCam = false;
+		this->followCam = true;
+		this->camPos = _camPos;
+		this->camTar = _target;
+		this->lookDirFromFollow = _lookDirFromFollow;
+		this->camFollowTar = _target;
+		this->radius = _radius;
+		this->height = _height;
+		this->activeMode = _mode;
+		break;
+	}
+	case Camera::FOLLOW_ORBIT:
+	{
+		if (_mode != activeMode) {
+			Console_OutputLog("Switching Camera Mode To Follow", LOGINFO);
+		}
+		this->staticCam = false;
+		this->orbitCam = true;
+		this->followCam = true;
+		this->camPos = _camPos;
+		this->camTar = _target;
+		this->lookDirFromFollow = _lookDirFromFollow;
+		this->camFollowTar = _target;
+		this->radius = _radius;
+		this->height = _height;
+		this->activeMode = _mode;
+		break;
+	}
+	case Camera::FOLLOW_STATIC:
+	{
+		if (_mode != activeMode) {
+			Console_OutputLog("Switching Camera Mode To Follow", LOGINFO);
+		}
+		this->staticCam = true;
+		this->orbitCam = false;
+		this->followCam = true;
+		this->camPos = _camPos;
+		this->camStartPos = glm::vec4(camPos.x, camPos.y, camPos.z, 1);
+		this->camTar = _target;
+		this->camFollowTar = _target;
+		this->lookDirFromFollow = _lookDirFromFollow;
+		this->radius = _radius;
+		this->height = _height;
+		this->activeMode = _mode;
+		break;
+	}
+	case Camera::ORTH:
+	{
+		if (_mode != activeMode) {
+			Console_OutputLog("Switching Camera Mode To Orth", LOGINFO);
+		}
+		this->orthoMode = true;
+		this->activeMode = _mode;
+		break;
+	}
+	case Camera::PRESPECTIVE:
+	{
+		if (_mode != activeMode) {
+			Console_OutputLog("Switching Camera Mode To Perspective", LOGINFO);
+		}
+		this->orthoMode = false;
+		this->activeMode = _mode;
+		break;
+	}
+	case Camera::PRESET1:
+	{
+		if (_mode != activeMode) {
+			Console_OutputLog("Switching Camera Mode To Orbit", LOGINFO);
+		}
+		this->activeMode = _mode;
+		break;
+	}
+	default: {
+		Console_OutputLog("UNRECONGISED MODE:" + std::to_string(_mode), LOGWARN);
+		break;
+		}
+	}
 }
 
 glm::mat4 Camera::getMVP(glm::vec3 postion, glm::vec3 scale, glm::mat4 rotationZ)

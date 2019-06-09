@@ -32,8 +32,8 @@ class Model
 {
 public:
 	
-	GLuint program;
-	Camera* camera;
+	GLuint program = NULL;
+	Camera* camera = nullptr;
 
 	float rotationAngle;
 	glm::vec3 rotationAxisZ;
