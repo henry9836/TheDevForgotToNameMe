@@ -3,6 +3,21 @@
 ##### Henry Oliver
 A 3D Multiplayer Game Built inside OpenGL
 
+# This is an unfinished Project
+
+### Currently Working on: AI
+
+################
+
+-= TO DO LIST =-
+
+~~3D Singleplayer game~~
+
+AI with steering behaviour
+
+Playable in multiplayer
+
+################
 
 ## Gameplay
 
