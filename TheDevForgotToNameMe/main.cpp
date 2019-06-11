@@ -28,6 +28,7 @@
 #include "Sprite.h"
 #include "ConsoleController.h"
 #include "3D.h"
+#include "AI.h"
 
 using namespace std;
 
@@ -61,6 +62,7 @@ vector<Model*> menuModels;
 vector<Model*> mainModels;
 vector<Bullet*> bulletObjects;
 vector<Enemy*> enemyObjects;
+vector<AIObject*> aiObjects;
 
 //Cubemap
 CubeMap cubeMap;
@@ -221,6 +223,13 @@ void Render() {
 		{
 			MovementPacket tmpBu = objManager.Move(objManager.BULLET, 10.0f, mAudio, deltaTime, glm::vec4(-15.0f, 0.0f, 15.0f, 15.0f), bulletObjects.at(i)->object->position, bulletObjects.at(i)->object->rotationAngle, tankModel.position);
 			bulletObjects.at(i)->object->position = tmpBu.newPosition;
+		}
+
+		//AI Update
+
+		for (size_t i = 0; i < aiObjects.size(); i++)
+		{
+			aiObjects.at(i)->Tick(deltaTime);
 		}
 
 		//Enemy Update
@@ -395,7 +404,6 @@ int main(int argc, char** argv) {
 			===============================================
 		*/
 
-
 		/*
 			=========
 			[ AUDIO ]
@@ -499,24 +507,11 @@ int main(int argc, char** argv) {
 		gameOverText.SetScale(static_cast<GLfloat>(1.0));
 		mainText.SetScale(static_cast<GLfloat>(1.0));
 		highscoreText.SetScale(static_cast<GLfloat>(1.0));
-		/*
-		mScore = TextLabel(mScreen, "SCORE: 0", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 200.0f));
-		mLivesText = TextLabel(mScreen, "LIVES: 3", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 100.0f));
-		mWaveNum = TextLabel(mScreen, "WAVE: 1", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 150.0f));
-		gameOverText = TextLabel(mScreen, "GAMEOVER\nSCORE: UNKNOWN\nPress c to continue", "Resources/DIN1451.ttf", glm::vec2(-300.0f, 200.0f));
-		mainText = TextLabel(mScreen, "The Dev Forgot To Name Me\n1. Play\n2. Quit", "Resources/Arial.ttf", glm::vec2(-300.0f, 200.0f));
-		highscoreText = TextLabel(mScreen, "Current Highscore: " + std::to_string(m_Game.highscore), "Resources/Arial.ttf", glm::vec2(-300.0f, -200.0f));
-		mScore.SetScale(static_cast<GLfloat>(0.65));
-		mLivesText.SetScale(static_cast<GLfloat>(0.65));
-		mWaveNum.SetScale(static_cast<GLfloat>(0.65));
-		gameOverText.SetScale(static_cast<GLfloat>(0.75));
-		mainText.SetScale(static_cast<GLfloat>(0.5));
-		highscoreText.SetScale(static_cast<GLfloat>(0.5));
-		*/
 
 		//Addition Items To Set Up
 
 		m_Game.enemyList = &enemyObjects;
+		m_Game.aiList = &aiObjects;
 		m_Game.mCam = &mCam;
 
 		//Start The Game

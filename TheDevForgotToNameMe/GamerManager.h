@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 #include "3D.h"
+#include "AI.h"
 
 class GameManager {
 public:
@@ -16,6 +17,8 @@ public:
 	int currentScreen = MAIN;
 
 	std::vector<Enemy*>* enemyList;
+	std::vector<AIObject*>* aiList;
+
 	Camera* mCam;
 
 	int score = 0;

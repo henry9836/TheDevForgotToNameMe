@@ -49,6 +49,7 @@ void GameManager::CheckGeneralInput(GameManager& m_game)
 				default:
 					break;
 				}
+				m_game.aiList->push_back(new AIObject(new Model("Resources/Models/EnemyShell/Dog 1.obj", mCam, "AIEnemy", float((rand() % 360) + 0), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3((rand() % 15) + 2, 1.0f, 15.0f), glm::vec3(1.5f, 1.5f, 1.5f), "Resources/3DObject_Diffuse.vs", "Resources/3DObject_BlinnPhong.fs")));
 				m_game.amountSpawned++;
 			}
 			else if (amountSpawned >= waveSpawnAmount) { //when enemyList is gone
