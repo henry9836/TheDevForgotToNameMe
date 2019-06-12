@@ -23,7 +23,7 @@ public:
 
 	int score = 0;
 	int wave = 1;
-	int waveSpawnAmount = 3;
+	int waveSpawnAmount = 10;
 	int lives = 3;
 	int amountSpawned = 0;
 	int highscore = 0;

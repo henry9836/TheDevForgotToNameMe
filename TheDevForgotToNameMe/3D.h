@@ -14,6 +14,8 @@
 #include "ConsoleController.h"
 #include "TextureLoader.h"
 #include "Model.h"
+#include "Input.h"
+#include "AI.h"
 
 //CubeMaps
 class CubeMap {
@@ -269,4 +271,26 @@ public:
 	bool amAllowedAlive = true;
 	Model* object;
 	float moveSpeed = 5.0f;
+};
+
+class Player {
+	public:
+	Model* object;
+	glm::vec3 velocity = { 0.0f, 0.0f, 0.0f };
+	glm::vec3 targetPos = { 0.0f, 0.0f, 0.0f };
+	float maxSpeed = 7.0f;
+	float maxForce = 3.0f;
+
+	//DEBUG
+	bool Flee = false;
+	bool Wander = false;
+	bool Pursuit = false;
+	bool Evade = false;
+	bool Leader = false;
+
+	Player(Model* mObject);
+	~Player();
+
+	void Update(GLfloat deltaTime, glm::vec4 maxWorldSize);
+
 };

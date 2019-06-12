@@ -31,65 +31,65 @@ MovementPacket ObjectManager::Move(OBJECTTYPE objType, float speed, AudioSystem&
 	if (objType == PLAYER) {
 		//Console_OutputLog("Current Pos: X[" + std::to_string(currentPos.x) + "] Y[" + std::to_string(currentPos.y) + "]" + "] Z[" + std::to_string(currentPos.z) + "]", LOGINFO);
 		//Movement
-		if (m_input.CheckKeyDown('w'))
-		{
-			currentState.newRotation = 270.0;
-			if (currentState.newPosition.x < maxWorldSize.z) {
-				currentState.newPosition.x += speed * deltaTime;
-			}
-		}
-		if (m_input.CheckKeyDown('s'))
-		{
-			currentState.newRotation = 90.0f;
-			if (currentState.newPosition.x > maxWorldSize.y) {
-				currentState.newPosition.x -= speed * deltaTime;
-			}
-		}
-		if (m_input.CheckKeyDown('a'))
-		{
-			currentState.newRotation = 0.0f;
-			if (currentState.newPosition.z > maxWorldSize.x) {
-				currentState.newPosition.z -= speed * deltaTime;
-			}
-		}
-		if (m_input.CheckKeyDown('d'))
-		{
-			currentState.newRotation = 180.0f;
-			if (currentState.newPosition.z < maxWorldSize.w) {
-				currentState.newPosition.z += speed * deltaTime;
-			}
-		}
-		if (m_input.CheckKeyDown('w') && m_input.CheckKeyDown('a')) {
-			currentState.newRotation = 315.0f;
-		}
-		else if (m_input.CheckKeyDown('w') && m_input.CheckKeyDown('d')) {
-			currentState.newRotation = 225.0f;
-		}
-		if (m_input.CheckKeyDown('s') && m_input.CheckKeyDown('d')) {
-			currentState.newRotation = 135.0f;
-		}
-		else if (m_input.CheckKeyDown('s') && m_input.CheckKeyDown('a')) {
-			currentState.newRotation = 45.0f;
-		}
+		//if (m_input.CheckKeyDown('w'))
+		//{
+		//	currentState.newRotation = 270.0;
+		//	if (currentState.newPosition.x < maxWorldSize.z) {
+		//		currentState.newPosition.x += speed * deltaTime;
+		//	}
+		//}
+		//if (m_input.CheckKeyDown('s'))
+		//{
+		//	currentState.newRotation = 90.0f;
+		//	if (currentState.newPosition.x > maxWorldSize.y) {
+		//		currentState.newPosition.x -= speed * deltaTime;
+		//	}
+		//}
+		//if (m_input.CheckKeyDown('a'))
+		//{
+		//	currentState.newRotation = 0.0f;
+		//	if (currentState.newPosition.z > maxWorldSize.x) {
+		//		currentState.newPosition.z -= speed * deltaTime;
+		//	}
+		//}
+		//if (m_input.CheckKeyDown('d'))
+		//{
+		//	currentState.newRotation = 180.0f;
+		//	if (currentState.newPosition.z < maxWorldSize.w) {
+		//		currentState.newPosition.z += speed * deltaTime;
+		//	}
+		//}
+		//if (m_input.CheckKeyDown('w') && m_input.CheckKeyDown('a')) {
+		//	currentState.newRotation = 315.0f;
+		//}
+		//else if (m_input.CheckKeyDown('w') && m_input.CheckKeyDown('d')) {
+		//	currentState.newRotation = 225.0f;
+		//}
+		//if (m_input.CheckKeyDown('s') && m_input.CheckKeyDown('d')) {
+		//	currentState.newRotation = 135.0f;
+		//}
+		//else if (m_input.CheckKeyDown('s') && m_input.CheckKeyDown('a')) {
+		//	currentState.newRotation = 45.0f;
+		//}
 
-		//Basic rotation
-		/*if (m_input.CheckKeyDown('q'))
-		{
-			currentState.newRotation += (speed * 30) * deltaTime;
-		}
-		if (m_input.CheckKeyDown('e'))
-		{
-			currentState.newRotation -= (speed * 30) * deltaTime;
-		}*/
-		
-		//Shooting
-		currentreload += deltaTime;
+		////Basic rotation
+		///*if (m_input.CheckKeyDown('q'))
+		//{
+		//	currentState.newRotation += (speed * 30) * deltaTime;
+		//}
+		//if (m_input.CheckKeyDown('e'))
+		//{
+		//	currentState.newRotation -= (speed * 30) * deltaTime;
+		//}*/
+		//
+		////Shooting
+		//currentreload += deltaTime;
 
-		if (m_input.CheckKeyDown('f') && currentreload > reloadTime) {
-			currentreload = 0.0f;
-			audio.Play(audio.SHOOT);
-			currentState.fire = true;
-		}
+		//if (m_input.CheckKeyDown('f') && currentreload > reloadTime) {
+		//	currentreload = 0.0f;
+		//	audio.Play(audio.SHOOT);
+		//	currentState.fire = true;
+		//}
 	}
 
 	else if (objType == BULLET) {

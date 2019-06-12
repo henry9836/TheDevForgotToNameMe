@@ -63,6 +63,7 @@ vector<Model*> mainModels;
 vector<Bullet*> bulletObjects;
 vector<Enemy*> enemyObjects;
 vector<AIObject*> aiObjects;
+vector<Player*> playerObjects;
 
 //Cubemap
 CubeMap cubeMap;
@@ -173,8 +174,16 @@ void Render() {
 
 		for (size_t i = 0; i < mainModels.size(); i++)
 		{
-			mainModels.at(i)->Render();
+			//mainModels.at(i)->Render();
 		}
+
+		for (size_t i = 0; i < playerObjects.size(); i++)
+		{
+			//mCam.SwitchMode(mCam.FOLLOW_STATIC, playerObjects.at(i)->object->position, glm::vec3(0,3.0f,0), glm::vec3(0, 0, 0), 5.0f, 3.0f);
+			playerObjects.at(i)->object->Render();
+			playerObjects.at(i)->Update(deltaTime, glm::vec4(-25.0f, 0.0f, 35.0f, 25.0f));
+		}
+
 		mCam.SwitchMode(mCam.ORBIT, tankModel.position, glm::vec3(-5.0f, 3.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 5.0f);
 		mainText.Render();
 		highscoreText.SetText("Current Highscore: " + std::to_string(m_Game.highscore));
@@ -190,13 +199,72 @@ void Render() {
 		mScore.SetText("Score: " + std::to_string(m_Game.score));
 		mLivesText.SetText("Lives: " + std::to_string(m_Game.lives));
 
-		mCam.SwitchMode(mCam.FOLLOW_STATIC, tankModel.position, glm::vec3(-10.0f, 15.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 5.0f);
+		mCam.SwitchMode(mCam.FOLLOW_STATIC, playerObjects.at(0)->object->position, glm::vec3(-10.0f, 15.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), 5.0f, 5.0f);
 		//Player Input
 
-		MovementPacket PlayerInput = objManager.Move(objManager.PLAYER, 7.0f, mAudio, deltaTime, glm::vec4(-15.0f, 0.0f, 15.0f, 15.0f), tankModel.position, tankModel.rotationAngle, tankModel.position);
+		MovementPacket PlayerInput = objManager.Move(objManager.PLAYER, 7.0f, mAudio, deltaTime, glm::vec4(-25.0f, 0.0f, 35.0f, 25.0f), tankModel.position, tankModel.rotationAngle, tankModel.position);
 
 		tankModel.position = PlayerInput.newPosition;
 		tankModel.rotationAngle = PlayerInput.newRotation;
+
+		//STEERING SECTION START
+
+		bool doneLead = false;
+
+		for (size_t i = 0; i < playerObjects.size(); i++)
+		{
+			playerObjects.at(i)->object->Render();
+			playerObjects.at(i)->Update(deltaTime, glm::vec4(-25.0f, 0.0f, 35.0f, 25.0f));
+		}
+
+		//for each AI Object
+		for (size_t i = 0; i < aiObjects.size(); i++)
+		{
+			//Update AI Objects
+			aiObjects.at(i)->Tick(deltaTime, glm::vec4(-25.0f, 0.0f, 35.0f, 25.0f));
+			//Flee mode?
+			if (playerObjects.at(0)->Flee) {
+				aiObjects.at(i)->velocity += AIObject::Flee(aiObjects.at(i)->object->position, aiObjects.at(i)->velocity, playerObjects.at(0)->object->position, aiObjects.at(i)->maxSpeed, aiObjects.at(i)->maxForce, 5.0f);
+				aiObjects.at(i)->mMode = aiObjects.at(i)->FLEE;
+			}
+			//Wander mode?
+			else if (playerObjects.at(0)->Wander) {
+				aiObjects.at(i)->velocity += aiObjects.at(i)->AIWander(aiObjects.at(i)->maxSpeed, aiObjects.at(i)->maxForce, 5.0f);
+				aiObjects.at(i)->mMode = aiObjects.at(i)->WANDER;
+			}
+			//Pursuit mode?
+			else if (playerObjects.at(0)->Pursuit) {
+				aiObjects.at(i)->velocity += aiObjects.at(i)->Pursuit(aiObjects.at(i)->object->position, aiObjects.at(i)->velocity, playerObjects.at(0)->object->position, playerObjects.at(0)->velocity,aiObjects.at(i)->maxSpeed, aiObjects.at(i)->maxForce, 5.0f);
+				aiObjects.at(i)->mMode = aiObjects.at(i)->PURSUIT;
+			}
+			//Evade mode?
+			else if (playerObjects.at(0)->Evade) {
+				aiObjects.at(i)->velocity += aiObjects.at(i)->Evade(aiObjects.at(i)->object->position, aiObjects.at(i)->velocity, playerObjects.at(0)->object->position, playerObjects.at(0)->velocity, aiObjects.at(i)->maxSpeed, aiObjects.at(i)->maxForce, 5.0f);
+				aiObjects.at(i)->mMode = aiObjects.at(i)->EVADE;
+			}
+			//Leader mode?
+			else if (playerObjects.at(0)->Leader) {
+				if (i == 0) {
+					aiObjects.at(0)->velocity += aiObjects.at(0)->Seek(aiObjects.at(0)->object->position, aiObjects.at(0)->velocity, playerObjects.at(0)->object->position, aiObjects.at(i)->maxSpeed, aiObjects.at(i)->maxForce, 5.0f);
+				}
+				else {
+					aiObjects.at(i)->velocity += aiObjects.at(i)->Leader(aiObjects.at(i)->object->position, aiObjects.at(i)->velocity, aiObjects.at(0)->object->position, aiObjects.at(0)->velocity, aiObjects.at(i)->maxSpeed, aiObjects.at(i)->maxForce, 5.0f, aiObjects);
+				}
+				aiObjects.at(i)->mMode = aiObjects.at(i)->LEADER;
+			}
+			//Seek mode?
+			else {
+				aiObjects.at(i)->velocity += AIObject::Seek(aiObjects.at(i)->object->position, aiObjects.at(i)->velocity, playerObjects.at(0)->object->position, aiObjects.at(i)->maxSpeed, aiObjects.at(i)->maxForce, 5.0f);
+				aiObjects.at(i)->mMode = aiObjects.at(i)->SEEK;
+			}
+			aiObjects.at(i)->object->position += aiObjects.at(i)->velocity * aiObjects.at(i)->maxSpeed * deltaTime;
+			aiObjects.at(i)->object->Render();
+		}
+
+		doneLead = false;
+
+		//STEERING SECTION END
+
 
 		//Spawn Player Bullet
 
@@ -221,15 +289,8 @@ void Render() {
 
 		for (size_t i = 0; i < bulletObjects.size(); i++)
 		{
-			MovementPacket tmpBu = objManager.Move(objManager.BULLET, 10.0f, mAudio, deltaTime, glm::vec4(-15.0f, 0.0f, 15.0f, 15.0f), bulletObjects.at(i)->object->position, bulletObjects.at(i)->object->rotationAngle, tankModel.position);
+			MovementPacket tmpBu = objManager.Move(objManager.BULLET, 10.0f, mAudio, deltaTime, glm::vec4(-25.0f, 0.0f, 35.0f, 25.0f), bulletObjects.at(i)->object->position, bulletObjects.at(i)->object->rotationAngle, tankModel.position);
 			bulletObjects.at(i)->object->position = tmpBu.newPosition;
-		}
-
-		//AI Update
-
-		for (size_t i = 0; i < aiObjects.size(); i++)
-		{
-			aiObjects.at(i)->Tick(deltaTime);
 		}
 
 		//Enemy Update
@@ -245,7 +306,7 @@ void Render() {
 		{
 			enemyObjects.at(i)->object->Render();
 			enemyObjects.at(i)->Tick(deltaTime);
-			MovementPacket tmpE = objManager.Move(objManager.ENEMY, m_Game.enemyMoveSpeed, mAudio, deltaTime, glm::vec4(-15.0f, 0.0f, 15.0f, 15.0f), enemyObjects.at(i)->object->position, enemyObjects.at(i)->object->rotationAngle, tankModel.position);
+			MovementPacket tmpE = objManager.Move(objManager.ENEMY, m_Game.enemyMoveSpeed, mAudio, deltaTime, glm::vec4(-25.0f, 0.0f, 35.0f, 25.0f), enemyObjects.at(i)->object->position, enemyObjects.at(i)->object->rotationAngle, tankModel.position);
 			enemyObjects.at(i)->object->position = tmpE.newPosition;
 			enemyObjects.at(i)->object->rotationAngle = tmpE.newRotation;
 
@@ -432,6 +493,14 @@ int main(int argc, char** argv) {
 		*/
 
 		cubeMap.Initalise(&mCam, "Resources/CubeMap/Witcher/", "Witcher Terrain Cube Map");
+
+		/*
+			==========
+			[ PLAYER ]
+			==========
+		*/
+
+		playerObjects.push_back(new Player(new Model("Resources/Models/Tank/Tank.obj", &mCam, "Tank", rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.5f, 0.5f, 0.5f), "Resources/3DObject_Diffuse.vs", "Resources/3DObject_BlinnPhong.fs")));
 
 		/*
 			===========

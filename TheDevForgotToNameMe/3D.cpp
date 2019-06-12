@@ -1,6 +1,7 @@
 #include "3D.h"
 
 LoadTexture TextureLoader;
+Input PlayerInput;
 
 void Simple3DObject::Initalise(glm::vec3 _position, glm::vec3 _scale, std::string textureFilePath, std::string vShaderFilePath, std::string fShaderFilePath, GLuint Indices[], GLfloat Verts[], std::string _name, int _size, bool _reflective)
 {
@@ -116,4 +117,115 @@ Enemy::~Enemy()
 
 void Enemy::Tick(float deltaTime)
 {
+}
+
+Player::Player(Model* mObject)
+{
+	object = mObject;
+}
+
+Player::~Player()
+{
+	delete object;
+}
+
+void Player::Update(GLfloat deltaTime, glm::vec4 maxWorldSize)
+{
+	if (PlayerInput.CheckKeyDown('z')) {
+		Flee = true;
+		Wander = false;
+		Pursuit = false;
+		Evade = false;
+		Leader = false;
+	}
+	if (PlayerInput.CheckKeyDown('x')) {
+		Flee = false;
+		Wander = true;
+		Pursuit = false;
+		Evade = false;
+		Leader = false;
+	}
+	if (PlayerInput.CheckKeyDown('c')) {
+		Flee = false;
+		Wander = false;
+		Pursuit = true;
+		Evade = false;
+		Leader = false;
+	}
+	if (PlayerInput.CheckKeyDown('v')) {
+		Flee = false;
+		Wander = false;
+		Pursuit = false;
+		Evade = true;
+		Leader = false;
+	}
+	if (PlayerInput.CheckKeyDown('b')) {
+		Flee = false;
+		Wander = false;
+		Pursuit = false;
+		Evade = false;
+		Leader = true;
+	}
+	if (PlayerInput.CheckKeyDown('r')) {
+		Flee = false;
+		Wander = false;
+		Pursuit = false;
+		Evade = false;
+		Leader = false;
+	}
+
+	if (PlayerInput.CheckKeyDown('w'))
+	{
+		object->rotationAngle = 270.0;
+		
+	if (object->position.x < maxWorldSize.z) {
+			targetPos.x += maxSpeed * deltaTime;
+		}
+	}
+	if (PlayerInput.CheckKeyDown('s'))
+	{
+		object->rotationAngle = 90.0f;
+		if (object->position.x > maxWorldSize.y) {
+			targetPos.x -= maxSpeed * deltaTime;
+		}
+	}
+	if (PlayerInput.CheckKeyDown('a'))
+	{
+		object->rotationAngle = 0.0f;
+		if (object->position.z > maxWorldSize.x) {
+			targetPos.z -= maxSpeed * deltaTime;
+		}
+	}
+	if (PlayerInput.CheckKeyDown('d'))
+	{
+		object->rotationAngle = 180.0f;
+		if (object->position.z < maxWorldSize.w) {
+			targetPos.z += maxSpeed * deltaTime;
+		}
+	}
+	if (PlayerInput.CheckKeyDown('w') && PlayerInput.CheckKeyDown('a')) {
+		object->rotationAngle = 315.0f;
+	}
+	else if (PlayerInput.CheckKeyDown('w') && PlayerInput.CheckKeyDown('d')) {
+		object->rotationAngle = 225.0f;
+	}
+	if (PlayerInput.CheckKeyDown('s') && PlayerInput.CheckKeyDown('d')) {
+		object->rotationAngle = 135.0f;
+	}
+	else if (PlayerInput.CheckKeyDown('s') && PlayerInput.CheckKeyDown('a')) {
+		object->rotationAngle = 45.0f;
+	}
+
+	velocity += AIObject::Seek(object->position, velocity, targetPos, maxSpeed, maxForce, 5.0f);
+	object->position += velocity * maxSpeed * deltaTime;
+
+
+	//Shooting
+	//currentreload += deltaTime;
+
+	//if (PlayerInput.CheckKeyDown('f') && currentreload > reloadTime) {
+	//	currentreload = 0.0f;
+	//	audio.Play(audio.SHOOT);
+	//	currentState.fire = true;
+	//}
 }
