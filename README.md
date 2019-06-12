@@ -5,7 +5,7 @@ A 3D Multiplayer Game Built inside OpenGL
 
 # This is an unfinished Project
 
-### Currently Working on: AI
+### Currently Working on: Multiplayer
 
 ################
 
@@ -13,7 +13,7 @@ A 3D Multiplayer Game Built inside OpenGL
 
 ~~3D Singleplayer game~~
 
-AI with steering behaviour
+~~AI with steering behaviour~~
 
 Playable in multiplayer
 
